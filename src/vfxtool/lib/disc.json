@@ -1,0 +1,16 @@
+{
+  "name": "disc",
+  "cell": 7,
+  "tiles": [
+    1,
+    1
+  ],
+  "frames": 1,
+  "rows": 1,
+  "kind": "grain",
+  "variants": [],
+  "blend": "additive",
+  "made": "draw",
+  "source": null,
+  "license": "MIT (VFXTool 생성)"
+}

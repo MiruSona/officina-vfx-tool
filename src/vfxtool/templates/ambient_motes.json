@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "name": "ambient_motes",
+  "title": "분위기 입자",
+  "layers": [
+    {
+      "name": "motes",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$motes_tex",
+      "sortOrder": 1,
+      "space": "world",
+      "main": {
+        "startLifetime": { "random": [2, 5] },
+        "startSpeed": 0,
+        "startSize": "$motes_size",
+        "startColor": "$color",
+        "maxParticles": 64
+      },
+      "emission": { "rateOverTime": "$density" },
+      "shape": { "type": "Box", "box": "$area" },
+      "velocityOverLifetime": { "x": { "random": ["$drift*-0.5", "$drift*0.5"] }, "y": { "random": ["$drift*0.3", "$drift"] }, "space": "world" },
+      "noise": { "strength": "$wobble", "frequency": 0.5, "scrollSpeed": 0.2, "octaves": 1, "quality": "Low" },
+      "colorOverLifetime": { "color": { "gradient": { "color": [[0, "#FFFFFF"]], "alpha": [[0, 0], [0.2, 1], [0.8, 0]] } } },
+      "textureSheet": { "row": "random" }
+    },
+    {
+      "name": "glint",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "$glint_tex",
+      "sortOrder": 2,
+      "space": "world",
+      "main": {
+        "startLifetime": 0.333,
+        "startSpeed": 0,
+        "startSize": "$glint_size",
+        "startColor": "$color",
+        "maxParticles": 4
+      },
+      "emission": { "rateOverTime": "$density*0.15" },
+      "shape": { "type": "Box", "box": "$area" },
+      "textureSheet": { "fps": 12, "cycles": 1 }
+    }
+  ],
+  "params": {
+    "area": { "type": "vec", "default": [36, 20], "desc": "나오는 상자 [가로, 세로](텍셀). 수명 5초 동안 drift 로 위 · 옆으로 밀리니 64 캔버스 테두리에 안 닿게 작게 둔다" },
+    "density": { "type": "float", "default": 6, "min": 0.5, "max": 30, "desc": "motes 초당 나오는 수(glint 는 0.15 배)" },
+    "drift": { "type": "float", "default": 3, "min": 0, "max": 20, "desc": "떠도는 속도(텍셀/초)" },
+    "wobble": { "type": "float", "default": 2, "min": 0, "max": 10, "desc": "흔들림 세기(텍셀)" },
+    "color": { "type": "color", "default": "p0", "desc": "입자 색" },
+    "motes_tex": { "type": "file", "default": "lib:dot", "size": "motes_size", "desc": "떠도는 점 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "motes_size": { "type": "int", "default": 3, "min": 1, "max": 64, "desc": "motes 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "glint_tex": { "type": "file", "default": "lib:star4", "size": "glint_size", "desc": "반짝 플립북 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "glint_size": { "type": "int", "default": 7, "min": 1, "max": 64, "desc": "glint 입자 크기(텍셀). 소재 칸의 정수 배" }
+  },
+  "fixed": {
+    "motes.material": "unlit", "motes.blend": "alpha", "motes.space": "world",
+    "glint.material": "unlit", "glint.blend": "additive", "glint.space": "world"
+  },
+  "presets": {
+    "calm": { "density": 3, "drift": 2 },
+    "busy": { "density": 14, "drift": 5 }
+  },
+  "tiers": {
+    "weak": { "mul": { "density": 0.5, "drift": 0.67 } },
+    "mid": { "mul": {} },
+    "strong": { "mul": { "density": 2, "drift": 1.5 } }
+  },
+  "check": [
+    { "rule": "loop", "args": { "value": true } },
+    { "rule": "first_frame_not_empty", "kind": "frame" },
+    { "rule": "coverage_max", "kind": "frame", "args": { "percent": 5 } }
+  ]
+}

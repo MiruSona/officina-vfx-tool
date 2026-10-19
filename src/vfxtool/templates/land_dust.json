@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "name": "land_dust",
+  "title": "착지 흙먼지",
+  "layers": [
+    {
+      "name": "puff_l",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$puff_tex",
+      "sortOrder": 5,
+      "space": "local",
+      "main": { "startLifetime": 0.833, "startSpeed": 0, "startSize": "$puff_size", "startColor": "$color", "gravityModifier": 0, "maxParticles": 8 },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [[0, "$count"]]
+      },
+      "shape": { "type": "Edge", "radius": "$width*0.25", "position": ["$width*-0.5", 0] },
+      "velocityOverLifetime": {
+        "x": { "random": [-19, -15] },
+        "y": { "random": ["$rise*0.25", "$rise*0.5"] },
+        "space": "local"
+      },
+      "textureSheet": { "fps": 12, "cycles": 1 }
+    },
+    {
+      "name": "puff_r",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$puff_tex",
+      "sortOrder": 5,
+      "space": "local",
+      "main": { "startLifetime": 0.833, "startSpeed": 0, "startSize": "$puff_size", "startColor": "$color", "gravityModifier": 0, "maxParticles": 8 },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [[0, "$count"]]
+      },
+      "shape": { "type": "Edge", "radius": "$width*0.25", "position": ["$width*0.5", 0] },
+      "velocityOverLifetime": {
+        "x": { "random": [15, 19] },
+        "y": { "random": ["$rise*0.25", "$rise*0.5"] },
+        "space": "local"
+      },
+      "textureSheet": { "fps": 12, "cycles": 1 }
+    },
+    {
+      "name": "small_l",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$small_tex",
+      "sortOrder": 6,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": [0.333, 0.583] },
+        "startSpeed": 0,
+        "startSize": "$small_size",
+        "startColor": "$color",
+        "gravityModifier": 0,
+        "maxParticles": 4
+      },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [[0, "$count"]]
+      },
+      "shape": { "type": "Edge", "radius": "$width*0.25", "position": ["$width*-0.5", 0] },
+      "velocityOverLifetime": {
+        "x": { "random": [-30, -16] },
+        "y": { "random": ["$rise*0.5", "$rise"] },
+        "space": "local"
+      },
+      "textureSheet": { "row": "random" }
+    },
+    {
+      "name": "small_r",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$small_tex",
+      "sortOrder": 6,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": [0.333, 0.583] },
+        "startSpeed": 0,
+        "startSize": "$small_size",
+        "startColor": "$color",
+        "gravityModifier": 0,
+        "maxParticles": 4
+      },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [[0, "$count"]]
+      },
+      "shape": { "type": "Edge", "radius": "$width*0.25", "position": ["$width*0.5", 0] },
+      "velocityOverLifetime": {
+        "x": { "random": [16, 30] },
+        "y": { "random": ["$rise*0.5", "$rise"] },
+        "space": "local"
+      },
+      "textureSheet": { "row": "random" }
+    },
+    {
+      "name": "chips_l",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$chips_tex",
+      "sortOrder": 7,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": ["$life*0.6", "$life"] },
+        "startSpeed": { "random": [20, 40] },
+        "startSize": "$chips_size",
+        "startColor": "$color",
+        "gravityModifier": 0.3,
+        "maxParticles": 8
+      },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [[0, "$count"]]
+      },
+      "shape": { "type": "Edge", "radius": "$width*0.25", "position": ["$width*-0.5", 0] },
+      "velocityOverLifetime": {
+        "x": { "random": [-24, -10] },
+        "space": "local"
+      },
+      "textureSheet": { "row": "random" }
+    },
+    {
+      "name": "chips_r",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$chips_tex",
+      "sortOrder": 7,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": ["$life*0.6", "$life"] },
+        "startSpeed": { "random": [20, 40] },
+        "startSize": "$chips_size",
+        "startColor": "$color",
+        "gravityModifier": 0.3,
+        "maxParticles": 8
+      },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [[0, "$count"]]
+      },
+      "shape": { "type": "Edge", "radius": "$width*0.25", "position": ["$width*0.5", 0] },
+      "velocityOverLifetime": {
+        "x": { "random": [10, 24] },
+        "space": "local"
+      },
+      "textureSheet": { "row": "random" }
+    }
+  ],
+  "params": {
+    "width": { "type": "float", "default": 6, "min": 1, "max": 24, "desc": "가로 반폭(텍셀). Edge 는 X 축 가로선, +Y 로 나감(실측). 모든 층이 좌 · 우 짝 — ±절반 자리에 반의 반 폭, x 속도는 바깥쪽" },
+    "count": { "type": "int", "default": 2, "min": 1, "max": 4, "desc": "한쪽 연기 뭉치 수 — puff_l · puff_r(puff16, 커졌다 흩어지는 16px 플립북)가 각각 이만큼. 작은 점 small_l · small_r, 조각 chips_l · chips_r 도 한쪽 이만큼" },
+    "rise": { "type": "float", "default": 3, "min": 0, "max": 30, "desc": "연기가 위로 뜨는 속도(텍셀/초)" },
+    "life": { "type": "float", "default": 0.416, "min": 0.1, "max": 1, "desc": "chips 의 가장 긴 수명(초). 가장 짧은 것은 0.6 배" },
+    "color": { "type": "color", "default": "p1", "desc": "먼지 색" },
+    "puff_tex": { "type": "file", "default": "lib:puff16", "size": "puff_size", "desc": "연기 뭉치 플립북 소재(좌우 공용). lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "puff_size": { "type": "int", "default": 16, "min": 1, "max": 64, "desc": "puff 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "small_tex": { "type": "file", "default": "lib:dot", "size": "small_size", "desc": "작은 점 소재(좌우 공용). lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "small_size": { "type": "int", "default": 3, "min": 1, "max": 64, "desc": "small 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "chips_tex": { "type": "file", "default": "lib:shard", "size": "chips_size", "desc": "조각 소재(좌우 공용). lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "chips_size": { "type": "int", "default": 5, "min": 1, "max": 64, "desc": "chips 입자 크기(텍셀). 소재 칸의 정수 배" }
+  },
+  "fixed": { "puff_l.material": "unlit", "puff_l.blend": "alpha", "puff_l.space": "local", "puff_r.material": "unlit", "puff_r.blend": "alpha", "puff_r.space": "local", "small_l.material": "unlit", "small_l.blend": "alpha", "small_l.space": "local", "small_r.material": "unlit", "small_r.blend": "alpha", "small_r.space": "local", "chips_l.material": "unlit", "chips_l.blend": "alpha", "chips_l.space": "local", "chips_r.material": "unlit", "chips_r.blend": "alpha", "chips_r.space": "local" },
+  "presets": {
+    "small": { "width": 4, "count": 1 },
+    "big": { "width": 10, "count": 3 }
+  },
+  "tiers": {
+    "weak": { "mul": { "count": 0.5, "width": 0.67, "rise": 0.67 } },
+    "mid": { "mul": {} },
+    "strong": { "mul": { "count": 1.5, "width": 1.67, "rise": 1.67 } }
+  },
+  "check": [
+    { "rule": "burst_only", "layer": "puff_l" },
+    { "rule": "burst_only", "layer": "puff_r" },
+    {
+      "rule": "centroid_rise_max",
+      "kind": "frame",
+      "args": { "texels": 10 }
+    },
+    {
+      "rule": "symmetric_x",
+      "kind": "frame",
+      "args": { "texels": 2 }
+    }
+  ]
+}

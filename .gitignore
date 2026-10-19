@@ -1,0 +1,23 @@
+.venv/
+Out/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Unity · IDE 산출물
+Library/
+Temp/
+Logs/
+UserSettings/
+*.log
+.vs/
+*.csproj
+*.sln
+
+# 개인 설정 · 메모
+*.local.md
+.claude/settings.local.json
+.claude/local/

@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "name": "hit_sparks",
+  "title": "맞음 파편",
+  "layers": [
+    {
+      "name": "flash",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "$flash_tex",
+      "sortOrder": 13,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": [0.083, 0.166] },
+        "startSpeed": 0,
+        "startSize": "$flash_size",
+        "startColor": "#FFFFFF",
+        "maxParticles": 1
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0, 1]] },
+      "shape": { "type": "Circle", "radius": 0 }
+    },
+    {
+      "name": "core",
+      "when": "$core",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$core_tex",
+      "sortOrder": 11,
+      "space": "local",
+      "main": {
+        "startLifetime": 0.416,
+        "startSpeed": 0,
+        "startSize": "$core_size",
+        "startColor": "$core_color",
+        "maxParticles": 1
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0, 1]] },
+      "shape": { "type": "Circle", "radius": 0 },
+      "textureSheet": { "fps": 12, "cycles": 1 }
+    },
+    {
+      "name": "ring",
+      "when": "$ring",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$ring_tex",
+      "sortOrder": 12,
+      "space": "local",
+      "main": {
+        "startLifetime": 0.333,
+        "startSpeed": 0,
+        "startSize": "$ring_size",
+        "startColor": "$color",
+        "maxParticles": 1
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0, 1]] },
+      "shape": { "type": "Circle", "radius": 0 },
+      "textureSheet": { "fps": 12, "cycles": 1, "startFrame": 0 }
+    },
+    {
+      "name": "sparks",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$sparks_tex",
+      "sortOrder": 10,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": ["$life*0.66", "$life"] },
+        "startSpeed": { "random": ["$speed*0.45", "$speed"] },
+        "startSize": "$sparks_size",
+        "startColor": "$color",
+        "gravityModifier": "$gravity",
+        "maxParticles": 64
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0, "$count"]] },
+      "shape": { "type": "Cone", "angle": "$spread", "radius": 1, "rotation": [-90, 0, 0] },
+      "colorOverLifetime": { "color": { "gradient": { "color": [[0, "#FFFFFF"]], "alpha": [[0, 1], [0.7, 1], [1, 0]] } } },
+      "textureSheet": { "row": "random" }
+    },
+    {
+      "name": "smoke",
+      "when": "$smoke",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$smoke_tex",
+      "sortOrder": 8,
+      "space": "local",
+      "main": {
+        "startLifetime": 0.75,
+        "startSpeed": 0,
+        "startSize": "$smoke_size",
+        "startColor": "$smoke_color",
+        "maxParticles": 2
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0, 2]] },
+      "shape": { "type": "Circle", "radius": 3 },
+      "velocityOverLifetime": { "y": { "random": [4, 8] }, "space": "local" },
+      "textureSheet": { "fps": 12, "cycles": 1 }
+    }
+  ],
+  "params": {
+    "count": { "type": "int", "default": 6, "min": 3, "max": 48, "desc": "파편 수(버스트 한 번)" },
+    "spread": { "type": "float", "default": 35, "min": 0, "max": 90, "desc": "퍼지는 반각(도)" },
+    "speed": { "type": "float", "default": 90, "min": 10, "max": 200, "desc": "가장 빠른 속도(텍셀/초). 가장 느린 것은 0.45 배" },
+    "life": { "type": "float", "default": 0.5, "min": 0.1, "max": 0.6, "desc": "파편의 가장 긴 수명(초). 가장 짧은 것은 0.66 배" },
+    "color": { "type": "color", "default": "p0", "desc": "파편 · 고리 색" },
+    "core_color": { "type": "color", "default": "p1", "fallback": "color", "desc": "burst16 코어 색. 파편과 갈라 보이게 기본 p1. 팔레트에 없으면 color 를 쓴다" },
+    "gravity": { "type": "float", "default": 0.6, "min": 0, "max": 3, "desc": "파편 중력 배수" },
+    "core": { "type": "bool", "default": false, "desc": "burst16 플립북 코어 층을 넣나. 기본은 끔 — 기하 소재(flash · ring · sparks)만 쓰는 판(실험 1 의 나 판)이 기본이다" },
+    "ring": { "type": "bool", "default": true, "desc": "ring 플립북 층을 넣나" },
+    "smoke": { "type": "bool", "default": false, "desc": "puff8 연기 층(0.75초)을 넣나. 켜면 duration 이 0.6 을 넘어 max_duration 에 걸린다" },
+    "smoke_color": { "type": "color", "default": "p3", "fallback": "color", "desc": "연기 색. 팔레트에 없으면 color 를 쓴다" },
+    "flash_tex": { "type": "file", "default": "lib:disc", "size": "flash_size", "desc": "번쩍 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "flash_size": { "type": "int", "default": 7, "min": 1, "max": 64, "desc": "flash 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "core_tex": { "type": "file", "default": "lib:burst16", "size": "core_size", "color": "core_color", "desc": "코어 플립북 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "core_size": { "type": "int", "default": 16, "min": 1, "max": 64, "desc": "core 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "ring_tex": { "type": "file", "default": "lib:ring", "size": "ring_size", "color": "color", "desc": "고리 플립북 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "ring_size": { "type": "int", "default": 15, "min": 1, "max": 64, "desc": "ring 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "sparks_tex": { "type": "file", "default": "lib:shard", "size": "sparks_size", "desc": "파편 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "sparks_size": { "type": "int", "default": 5, "min": 1, "max": 64, "desc": "sparks 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "smoke_tex": { "type": "file", "default": "lib:puff8", "size": "smoke_size", "color": "smoke_color", "desc": "연기 플립북 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "smoke_size": { "type": "int", "default": 8, "min": 1, "max": 64, "desc": "smoke 입자 크기(텍셀). 소재 칸의 정수 배" }
+  },
+  "fixed": {
+    "flash.material": "unlit", "flash.blend": "additive", "flash.space": "local",
+    "core.material": "unlit", "core.blend": "alpha", "core.space": "local",
+    "ring.material": "unlit", "ring.blend": "alpha", "ring.space": "local",
+    "sparks.material": "unlit", "sparks.blend": "alpha", "sparks.space": "local",
+    "smoke.material": "unlit", "smoke.blend": "alpha", "smoke.space": "local"
+  },
+  "presets": {
+    "small": { "count": 4, "speed": 60, "life": 0.5 },
+    "big": { "count": 12, "speed": 120, "life": 0.6 }
+  },
+  "tiers": {
+    "weak": { "mul": { "count": 0.5, "speed": 0.7, "life": 0.8 } },
+    "mid": { "mul": {} },
+    "strong": { "mul": { "count": 2, "speed": 1.3, "life": 1.2 } }
+  },
+  "check": [
+    { "rule": "burst_only", "layer": "sparks" },
+    { "rule": "max_duration", "args": { "max": 0.6 } },
+    { "rule": "last_frame_empty", "kind": "frame" }
+  ]
+}

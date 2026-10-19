@@ -1,0 +1,65 @@
+{
+  "status": "ok",
+  "unity": "6000.3.23f1",
+  "recipeSha256": "synthetic",
+  "seed": 7,
+  "fixedTimeStep": true,
+  "renderApi": "SingleCameraRequest",
+  "prefab": null,
+  "t0_skipped": true,
+  "frames": [
+    {
+      "i": 1,
+      "t": 0.0833,
+      "png": "f001.png",
+      "particles": 1
+    },
+    {
+      "i": 2,
+      "t": 0.1667,
+      "png": "f002.png",
+      "particles": 1
+    },
+    {
+      "i": 3,
+      "t": 0.25,
+      "png": "f003.png",
+      "particles": 1
+    },
+    {
+      "i": 4,
+      "t": 0.3333,
+      "png": "f004.png",
+      "particles": 1
+    },
+    {
+      "i": 5,
+      "t": 0.4167,
+      "png": "f005.png",
+      "particles": 1
+    },
+    {
+      "i": 6,
+      "t": 0.5,
+      "png": "f006.png",
+      "particles": 1
+    },
+    {
+      "i": 7,
+      "t": 0.5833,
+      "png": "f007.png",
+      "particles": 1
+    },
+    {
+      "i": 8,
+      "t": 0.6667,
+      "png": "f008.png",
+      "particles": 1
+    }
+  ],
+  "issues": [],
+  "seconds": {
+    "build": 0,
+    "render": 0
+  }
+}

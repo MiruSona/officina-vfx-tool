@@ -1,0 +1,17 @@
+{
+  "name": "burst16",
+  "cell": 16,
+  "tiles": [
+    5,
+    1
+  ],
+  "frames": 5,
+  "rows": 1,
+  "kind": "flipbook",
+  "variants": [],
+  "blend": "alpha",
+  "made": "cut",
+  "source": "burst16",
+  "license": "CC0 1.0",
+  "tones": 1
+}

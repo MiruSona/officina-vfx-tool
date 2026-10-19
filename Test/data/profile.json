@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "palette": ["#FFE08A", "#F0A040", "#C04020", "#602010"],
+  "ppu": 32,
+  "pixel_size": [1, 2],
+  "max_colors": 4
+}

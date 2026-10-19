@@ -1,0 +1,10 @@
+{ "version": 1, "name": "hit_sparks_a", "profile": "../profile.json",
+  "seed": 1234, "fixedTimeStep": true, "duration": 0.5, "canvas": { "texels": [64, 64], "scale": 4 },
+  "layers": [{ "name": "sparks", "material": "unlit", "blend": "alpha", "sortOrder": 10,
+    "main": { "startLifetime": { "random": [0.25, 0.45] }, "startSpeed": { "random": [40, 90] },
+              "startSize": 1, "startColor": "p0", "gravityModifier": 0.6, "maxParticles": 64 },
+    "emission": { "rateOverTime": 0, "bursts": [[0, 18]] },
+    "shape": { "type": "Cone", "angle": 35, "radius": 1, "rotation": [-90, 0, 0] },
+    "colorOverLifetime": { "color": { "gradient": {
+      "color": [[0, "#FFFFFF"]], "alpha": [[0, 1], [0.8, 0]] } } },
+    "sizeOverLifetime": { "size": { "curve": [[0, 2], [0.4, 1]] } } }] }

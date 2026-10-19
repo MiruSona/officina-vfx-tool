@@ -1,0 +1,2 @@
+{ "version": 1, "name": "tpl_heal_rise", "profile": "../profile.json", "seed": 1234, "fixedTimeStep": true, "duration": 1.0,
+  "layers": [{ "name": "heal", "template": "heal_rise", "params": { "count": 10 } }] }

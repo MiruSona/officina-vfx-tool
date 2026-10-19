@@ -1,0 +1,2 @@
+{ "version": 1, "name": "tpl_ambient_motes", "profile": "../profile.json", "seed": 1234, "fixedTimeStep": true, "duration": 2.0, "loop": true,
+  "layers": [{ "name": "air", "template": "ambient_motes", "preset": "calm" }] }

@@ -1,0 +1,16 @@
+{
+  "name": "star4",
+  "cell": 7,
+  "tiles": [
+    4,
+    1
+  ],
+  "frames": 4,
+  "rows": 1,
+  "kind": "flipbook",
+  "variants": [],
+  "blend": "additive",
+  "made": "draw",
+  "source": null,
+  "license": "MIT (VFXTool 생성)"
+}

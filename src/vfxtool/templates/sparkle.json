@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "name": "sparkle",
+  "title": "반짝임(플립북)",
+  "layers": [
+    {
+      "name": "twinkle",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "$sheet",
+      "sortOrder": 12,
+      "space": "local",
+      "main": {
+        "startLifetime": "$life",
+        "startSpeed": 0,
+        "startSize": "$size",
+        "startColor": "$color",
+        "maxParticles": 32
+      },
+      "emission": { "rateOverTime": "$count", "bursts": [[0, 1]] },
+      "shape": { "type": "Circle", "radius": "$radius" },
+      "textureSheet": { "tiles": "$tiles", "fps": 12, "cycles": 1 }
+    },
+    {
+      "name": "mote",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$mote_tex",
+      "sortOrder": 11,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": [0.5, 1.0] },
+        "startSpeed": 0,
+        "startSize": "$mote_size",
+        "startColor": "$color",
+        "maxParticles": 16
+      },
+      "emission": { "rateOverTime": "$count", "bursts": [[0, 2]] },
+      "shape": { "type": "Circle", "radius": "$radius" },
+      "colorOverLifetime": { "color": { "gradient": { "color": [[0, "#FFFFFF"]], "alpha": [[0, 1], [0.8, 0]] } } },
+      "textureSheet": { "row": "random" }
+    },
+    {
+      "name": "glow",
+      "when": "$glow",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "$glow_tex",
+      "sortOrder": 10,
+      "space": "local",
+      "main": {
+        "startLifetime": 0.5,
+        "startSpeed": 0,
+        "startSize": "$glow_size",
+        "startColor": "$color",
+        "maxParticles": 1
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0, 1]] },
+      "shape": { "type": "Circle", "radius": 0 }
+    }
+  ],
+  "params": {
+    "sheet": { "type": "file", "default": "lib:star4", "size": "size", "tiles": "tiles", "desc": "twinkle 플립북 시트. 기본 lib:star4(점 → + → 별 → 점 한 생). 파일이면 레시피 폴더 기준 PNG" },
+    "tiles": { "type": "tiles", "default": [4, 1], "desc": "시트 칸 수 [x, y]. lib: 소재면 메타와 같아야 한다(star4 · ring 은 [4, 1])" },
+    "size": { "type": "int", "default": 7, "min": 1, "max": 32, "desc": "twinkle 입자 하나 크기(텍셀) = 시트 한 칸 크기" },
+    "count": { "type": "int", "default": 6, "min": 1, "max": 30, "desc": "twinkle · mote 초당 나오는 수" },
+    "radius": { "type": "float", "default": 10, "min": 0, "max": 30, "desc": "흩어지는 반지름(텍셀)" },
+    "life": { "type": "float", "default": 0.333, "min": 0.2, "max": 2, "desc": "twinkle 수명(초). 장 수 ÷ 12 보다 길면 플립북이 다시 돈다(star4 는 0.333)" },
+    "color": { "type": "color", "default": "p0", "desc": "twinkle · mote · glow 색. twinkle 을 흰색으로 두면 additive 별이 12장 내내 하얗게 떠 frame.bright warn 이 난다" },
+    "glow": { "type": "bool", "default": false, "desc": "가운데 disc 빛 층을 넣나" },
+    "mote_tex": { "type": "file", "default": "lib:dot", "size": "mote_size", "desc": "점 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "mote_size": { "type": "int", "default": 3, "min": 1, "max": 64, "desc": "mote 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "glow_tex": { "type": "file", "default": "lib:disc", "size": "glow_size", "desc": "빛 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "glow_size": { "type": "int", "default": 7, "min": 1, "max": 64, "desc": "glow 입자 크기(텍셀). 소재 칸의 정수 배" }
+  },
+  "fixed": {
+    "twinkle.material": "unlit", "twinkle.blend": "additive", "twinkle.space": "local",
+    "mote.material": "unlit", "mote.blend": "alpha", "mote.space": "local",
+    "glow.material": "unlit", "glow.blend": "additive", "glow.space": "local"
+  },
+  "presets": {
+    "sparse": { "count": 3 },
+    "dense": { "count": 12, "radius": 14 }
+  },
+  "tiers": {
+    "weak": { "mul": { "count": 0.5, "radius": 0.7 } },
+    "mid": { "mul": {} },
+    "strong": { "mul": { "count": 2, "radius": 1.4 } }
+  },
+  "check": []
+}

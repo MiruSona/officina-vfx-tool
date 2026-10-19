@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "name": "tpl_sparkle",
+  "profile": "../profile.json",
+  "seed": 1234,
+  "fixedTimeStep": true,
+  "fixedDeltaTime": 0.02,
+  "duration": 1.0,
+  "fps": 12,
+  "loop": false,
+  "canvas": {
+    "texels": [
+      64,
+      64
+    ],
+    "scale": 4
+  },
+  "bloom": false,
+  "light": "none",
+  "ppu": 32,
+  "sortingLayer": "Default",
+  "snap": true,
+  "layers": [
+    {
+      "name": "spark.twinkle",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "<LIB>/star4.png",
+      "sortOrder": 12,
+      "space": "local",
+      "offset": [
+        0.0,
+        0.0
+      ],
+      "main": {
+        "startLifetime": 0.333,
+        "startSpeed": 0.0,
+        "startSize": 0.21875,
+        "startColor": "#FFE08A",
+        "maxParticles": 32
+      },
+      "emission": {
+        "rateOverTime": 6,
+        "bursts": [
+          {
+            "t": 0,
+            "n": 1,
+            "cycles": 1,
+            "interval": 0.01
+          }
+        ]
+      },
+      "shape": {
+        "type": "Circle",
+        "radius": 0.3125
+      },
+      "textureSheet": {
+        "tiles": [
+          4,
+          1
+        ],
+        "fps": 12,
+        "cycles": 1
+      }
+    },
+    {
+      "name": "spark.mote",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "<LIB>/dot.png",
+      "sortOrder": 11,
+      "space": "local",
+      "offset": [
+        0.0,
+        0.0
+      ],
+      "main": {
+        "startLifetime": {
+          "random": [
+            0.5,
+            1.0
+          ]
+        },
+        "startSpeed": 0.0,
+        "startSize": 0.09375,
+        "startColor": "#FFE08A",
+        "maxParticles": 16
+      },
+      "emission": {
+        "rateOverTime": 6,
+        "bursts": [
+          {
+            "t": 0,
+            "n": 2,
+            "cycles": 1,
+            "interval": 0.01
+          }
+        ]
+      },
+      "shape": {
+        "type": "Circle",
+        "radius": 0.3125
+      },
+      "colorOverLifetime": {
+        "color": {
+          "gradient": {
+            "color": [
+              [
+                0,
+                "#FFFFFF"
+              ]
+            ],
+            "alpha": [
+              [
+                0,
+                1
+              ],
+              [
+                0.8,
+                0
+              ]
+            ]
+          },
+          "mode": "fixed"
+        }
+      },
+      "textureSheet": {
+        "tiles": [
+          1,
+          3
+        ],
+        "row": "random"
+      }
+    }
+  ]
+}

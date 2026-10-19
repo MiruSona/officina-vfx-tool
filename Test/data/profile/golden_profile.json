@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "palette": [
+    "#E04020",
+    "#F0C040",
+    "#FFFFFF",
+    "#402010",
+    "#112233"
+  ],
+  "fx_extra": [
+    "#FFFFFF",
+    "#FFF0C0"
+  ],
+  "ppu": 24,
+  "pixel_size": [
+    2
+  ],
+  "max_colors": 4,
+  "outline": "none",
+  "fps": 10,
+  "fps_range": [
+    12,
+    16
+  ],
+  "alpha_steps": "binary",
+  "allow_rotation": false,
+  "seq_tolerance": {
+    "ratio": 0.5,
+    "run": 4
+  },
+  "max_particles": 256,
+  "sorting_layer": "Default",
+  "snap": true,
+  "bloom": false,
+  "source": {
+    "palette": "style",
+    "fx_extra": "override",
+    "ppu": "override",
+    "pixel_size": "png",
+    "max_colors": "default",
+    "outline": "default",
+    "fps": "style",
+    "fps_range": "default",
+    "alpha_steps": "default",
+    "allow_rotation": "override",
+    "seq_tolerance": "override",
+    "max_particles": "default",
+    "sorting_layer": "default",
+    "snap": "default",
+    "bloom": "default"
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "name": "tpl_ambient_motes",
+  "profile": "../profile.json",
+  "seed": 1234,
+  "fixedTimeStep": true,
+  "fixedDeltaTime": 0.02,
+  "duration": 2.0,
+  "fps": 12,
+  "loop": true,
+  "canvas": {
+    "texels": [
+      64,
+      64
+    ],
+    "scale": 4
+  },
+  "bloom": false,
+  "light": "none",
+  "ppu": 32,
+  "sortingLayer": "Default",
+  "snap": true,
+  "layers": [
+    {
+      "name": "air.motes",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "<LIB>/dot.png",
+      "sortOrder": 1,
+      "space": "world",
+      "offset": [
+        0.0,
+        0.0
+      ],
+      "main": {
+        "startLifetime": {
+          "random": [
+            2,
+            5
+          ]
+        },
+        "startSpeed": 0.0,
+        "startSize": 0.09375,
+        "startColor": "#FFE08A",
+        "maxParticles": 64
+      },
+      "emission": {
+        "rateOverTime": 3
+      },
+      "shape": {
+        "type": "Box",
+        "box": [
+          1.125,
+          0.625
+        ]
+      },
+      "velocityOverLifetime": {
+        "x": {
+          "random": [
+            -0.03125,
+            0.03125
+          ]
+        },
+        "y": {
+          "random": [
+            0.01875,
+            0.0625
+          ]
+        },
+        "space": "world"
+      },
+      "colorOverLifetime": {
+        "color": {
+          "gradient": {
+            "color": [
+              [
+                0,
+                "#FFFFFF"
+              ]
+            ],
+            "alpha": [
+              [
+                0,
+                0
+              ],
+              [
+                0.2,
+                1
+              ],
+              [
+                0.8,
+                0
+              ]
+            ]
+          },
+          "mode": "fixed"
+        }
+      },
+      "noise": {
+        "strength": 0.0625,
+        "frequency": 0.5,
+        "scrollSpeed": 0.2,
+        "octaves": 1,
+        "quality": "Low"
+      },
+      "textureSheet": {
+        "tiles": [
+          1,
+          3
+        ],
+        "row": "random"
+      }
+    },
+    {
+      "name": "air.glint",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "<LIB>/star4.png",
+      "sortOrder": 2,
+      "space": "world",
+      "offset": [
+        0.0,
+        0.0
+      ],
+      "main": {
+        "startLifetime": 0.333,
+        "startSpeed": 0.0,
+        "startSize": 0.21875,
+        "startColor": "#FFE08A",
+        "maxParticles": 4
+      },
+      "emission": {
+        "rateOverTime": 0.45
+      },
+      "shape": {
+        "type": "Box",
+        "box": [
+          1.125,
+          0.625
+        ]
+      },
+      "textureSheet": {
+        "tiles": [
+          4,
+          1
+        ],
+        "fps": 12,
+        "cycles": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "dot_style_a",
+  "palette": ["#e04020", "#F0C040", "#FFFFFF", "#402010", "#112233"],
+  "ppu": 16,
+  "frame_ms": 100,
+  "outline": "black",
+  "lighting": "top_left"
+}

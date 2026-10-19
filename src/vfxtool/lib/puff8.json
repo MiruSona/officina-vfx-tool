@@ -1,0 +1,17 @@
+{
+  "name": "puff8",
+  "cell": 8,
+  "tiles": [
+    9,
+    1
+  ],
+  "frames": 9,
+  "rows": 1,
+  "kind": "flipbook",
+  "variants": [],
+  "blend": "alpha",
+  "made": "cut",
+  "source": "puff8",
+  "license": "CC0 1.0",
+  "tones": 1
+}

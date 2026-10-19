@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vfxtool"
+version = "0.1.0"
+description = "레시피 JSON 으로 Unity Shuriken 파티클 이펙트를 조립 · 렌더 · 검수하는 명령줄 툴"
+requires-python = ">=3.11"
+dependencies = [
+    "pillow",
+    "numpy",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+vfxtool = "vfxtool.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+vfxtool = ["**/*.json", "symptoms.json", "templates/*.json", "variants/*.json", "lib/*.png", "lib/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["Test"]

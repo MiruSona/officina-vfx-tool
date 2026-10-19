@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "name": "heal_rise",
+  "title": "회복 입자",
+  "layers": [
+    {
+      "name": "dots",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$dots_tex",
+      "sortOrder": 10,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": [0.83, 1.33] },
+        "startSpeed": 0,
+        "startSize": "$dots_size",
+        "startColor": "$color",
+        "maxParticles": 48
+      },
+      "emission": { "rateOverTime": "$count", "bursts": [[0, 2]] },
+      "shape": { "type": "Circle", "radius": "$radius" },
+      "velocityOverLifetime": { "y": { "random": ["$rise*0.6", "$rise"] }, "space": "local" },
+      "colorOverLifetime": { "color": { "gradient": { "color": [[0, "#FFFFFF"]], "alpha": [[0, 1], [0.8, 0]] } } },
+      "textureSheet": { "row": 0 }
+    },
+    {
+      "name": "glow",
+      "when": "$glow",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "$glow_tex",
+      "sortOrder": 11,
+      "space": "local",
+      "main": {
+        "startLifetime": 0.333,
+        "startSpeed": 0,
+        "startSize": "$glow_size",
+        "startColor": "$glow_color",
+        "maxParticles": 1
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0, 1]] },
+      "shape": { "type": "Circle", "radius": 0 },
+      "textureSheet": { "fps": 12, "cycles": 1 }
+    },
+    {
+      "name": "streak",
+      "when": "$streak",
+      "material": "unlit",
+      "blend": "additive",
+      "texture": "$streak_tex",
+      "sortOrder": 12,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": [0.5, 0.83] },
+        "startSpeed": 0,
+        "startSize": "$streak_size",
+        "startColor": "$glow_color",
+        "maxParticles": 8
+      },
+      "emission": { "rateOverTime": "$count*0.25" },
+      "shape": { "type": "Circle", "radius": "$radius*0.6" },
+      "velocityOverLifetime": { "y": { "random": ["$rise*0.8", "$rise*1.2"] }, "space": "local" },
+      "textureSheet": { "row": 1 }
+    },
+    {
+      "name": "rest",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$rest_tex",
+      "sortOrder": 9,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": [0.33, 0.66] },
+        "startSpeed": 0,
+        "startSize": "$rest_size",
+        "startColor": "$color",
+        "maxParticles": 16
+      },
+      "emission": { "rateOverTime": "$count*0.5" },
+      "shape": { "type": "Circle", "radius": "$radius" },
+      "velocityOverLifetime": { "y": { "random": ["$rise*0.2", "$rise*0.4"] }, "space": "local" },
+      "colorOverLifetime": { "color": { "gradient": { "color": [[0, "#FFFFFF"]], "alpha": [[0, 1], [0.8, 0]] } } },
+      "textureSheet": { "row": "random" }
+    }
+  ],
+  "params": {
+    "radius": { "type": "float", "default": 8, "min": 1, "max": 24, "desc": "나오는 원 반지름(텍셀)" },
+    "count": { "type": "int", "default": 12, "min": 2, "max": 40, "desc": "dots 초당 수(rest 는 절반, streak 는 1/4)" },
+    "rise": { "type": "float", "default": 20, "min": 4, "max": 60, "desc": "오르는 속도(텍셀/초)" },
+    "color": { "type": "color", "default": "p0", "desc": "입자 색" },
+    "glow": { "type": "bool", "default": true, "desc": "additive ring 고리 층을 넣나(끄면 층을 뺀다)" },
+    "glow_color": { "type": "color", "default": "p1", "fallback": "color", "desc": "glow · streak 층 색. additive 라 dots 색에 더해진다 — dots 보다 어두운 색이어야 겹친 곳이 하얗게 타지 않는다. 팔레트가 한 색이면 기본값 p1 대신 color 를 쓴다" },
+    "streak": { "type": "bool", "default": false, "desc": "위로 오르는 streak 줄기 층을 넣나" },
+    "dots_tex": { "type": "file", "default": "lib:cross", "size": "dots_size", "desc": "십자 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "dots_size": { "type": "int", "default": 5, "min": 1, "max": 64, "desc": "dots 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "glow_tex": { "type": "file", "default": "lib:ring", "size": "glow_size", "color": "glow_color", "desc": "고리 플립북 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "glow_size": { "type": "int", "default": 15, "min": 1, "max": 64, "desc": "glow 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "streak_tex": { "type": "file", "default": "lib:streak", "size": "streak_size", "desc": "줄기 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "streak_size": { "type": "int", "default": 7, "min": 1, "max": 64, "desc": "streak 입자 크기(텍셀). 소재 칸의 정수 배" },
+    "rest_tex": { "type": "file", "default": "lib:dot", "size": "rest_size", "desc": "남는 점 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "rest_size": { "type": "int", "default": 3, "min": 1, "max": 64, "desc": "rest 입자 크기(텍셀). 소재 칸의 정수 배" }
+  },
+  "fixed": {
+    "dots.material": "unlit", "dots.blend": "alpha", "dots.space": "local",
+    "glow.material": "unlit", "glow.blend": "additive", "glow.space": "local",
+    "streak.material": "unlit", "streak.blend": "additive", "streak.space": "local",
+    "rest.material": "unlit", "rest.blend": "alpha", "rest.space": "local"
+  },
+  "presets": {
+    "small": { "radius": 5, "count": 6 },
+    "big": { "radius": 12, "count": 24 }
+  },
+  "tiers": {
+    "weak": { "mul": { "count": 0.5, "radius": 0.67, "rise": 0.75 } },
+    "mid": { "mul": {} },
+    "strong": { "mul": { "count": 2, "radius": 1.5, "rise": 1.5 } }
+  },
+  "check": [
+    { "rule": "centroid_rises", "kind": "frame" },
+    { "rule": "max_luma", "kind": "frame", "layer": "glow", "args": { "max": 0.95 } }
+  ]
+}

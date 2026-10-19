@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "name": "hit_sparks_a",
+  "profile": "../profile.json",
+  "seed": 1234,
+  "fixedTimeStep": true,
+  "fixedDeltaTime": 0.02,
+  "duration": 0.5,
+  "fps": 12,
+  "loop": false,
+  "canvas": {
+    "texels": [
+      64,
+      64
+    ],
+    "scale": 4
+  },
+  "bloom": false,
+  "light": "none",
+  "ppu": 32,
+  "sortingLayer": "Default",
+  "snap": true,
+  "layers": [
+    {
+      "name": "sparks",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "px1",
+      "sortOrder": 10,
+      "space": "local",
+      "offset": [
+        0.0,
+        0.0
+      ],
+      "main": {
+        "startLifetime": {
+          "random": [
+            0.25,
+            0.45
+          ]
+        },
+        "startSpeed": {
+          "random": [
+            1.25,
+            2.8125
+          ]
+        },
+        "startSize": 0.03125,
+        "startColor": "#FFE08A",
+        "gravityModifier": 0.6,
+        "maxParticles": 64
+      },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [
+          {
+            "t": 0,
+            "n": 18,
+            "cycles": 1,
+            "interval": 0.01
+          }
+        ]
+      },
+      "shape": {
+        "type": "Cone",
+        "radius": 0.03125,
+        "angle": 35,
+        "rotation": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "colorOverLifetime": {
+        "color": {
+          "gradient": {
+            "color": [
+              [
+                0,
+                "#FFFFFF"
+              ]
+            ],
+            "alpha": [
+              [
+                0,
+                1
+              ],
+              [
+                0.8,
+                0
+              ]
+            ]
+          },
+          "mode": "fixed"
+        }
+      },
+      "sizeOverLifetime": {
+        "size": {
+          "curve": [
+            [
+              0,
+              2
+            ],
+            [
+              0.4,
+              1
+            ]
+          ],
+          "mult": 1,
+          "step": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "symptoms": [
+    { "name": "empty", "detect": ["frame.all_empty"],
+      "params": ["emission", "main.startDelay", "main.startColor", "main.startSize"],
+      "desc": "모든 프레임 덮은 면적 0 — rate 0 + 버스트 없음 · startDelay 가 길이보다 김 · 색 알파 0 · 크기 0" },
+    { "name": "offscreen", "detect": ["frame.clipped"],
+      "params": ["main.startSpeed", "main.gravityModifier", "main.startLifetime", "shape.position", "canvas"],
+      "desc": "바깥 테두리에 닿음" },
+    { "name": "too_dense", "detect": ["frame.dense"],
+      "params": ["emission.bursts", "emission.rateOverTime", "main.startSize"],
+      "desc": "덮은 면적 최대가 문턱을 넘음" },
+    { "name": "too_short", "detect": ["frame.too_short"],
+      "params": ["main.startLifetime", "main.startSpeed"],
+      "desc": "안 빈 프레임이 2장 이하 — 너무 빨리 빠짐" },
+    { "name": "lingers", "detect": ["frame.last_not_empty"],
+      "params": ["main.startLifetime", "main.startDelay", "loop"],
+      "desc": "one-shot 인데 끝 프레임이 안 빔" },
+    { "name": "off_palette", "detect": ["frame.palette", "frame.colors"],
+      "params": ["colorOverLifetime.mode", "p<n>", "blend", "texture"],
+      "desc": "팔레트 밖 색 · 색 수 초과 — 그러데이션 blend · hex 대신 p<n> · additive 겹침 · 텍스처" },
+    { "name": "off_grid", "detect": ["frame.grid"],
+      "params": ["material", "sizeOverLifetime.step", "texture"],
+      "desc": "경계가 텍셀 격자에 안 맞는 프레임이 묶음 문턱을 넘음 — 스냅 아닌 머티리얼 · 크기 곡선 step 꺼짐 · 홀수 텍셀 시트" },
+    { "name": "lopsided", "detect": ["frame.lopsided"],
+      "params": ["shape.rotation", "shape.angle", "velocityOverLifetime.x"],
+      "desc": "무게중심 x 가 원점에서 치우침" },
+    { "name": "jittery", "detect": [],
+      "params": ["noise.strength", "noise.frequency", "noise.scrollSpeed"],
+      "desc": "떨림 — 사람 눈으로만 본다(자동 탐지 없음)" },
+    { "name": "too_bright", "detect": ["frame.bright"],
+      "params": ["emission", "main.startColor", "blend"],
+      "desc": "최대 밝기 0.98 이상인 칸이 넓음(additive) — 입자 수 · 색 밝기(선형 기준) · blend 를 alpha 로" }
+  ],
+  "rule_hints": {
+    "entry.bug": ["unity.log"],
+    "render.frames_capped": ["duration", "fps"],
+    "build.texture_bad": ["texture"]
+  }
+}

@@ -1,0 +1,2 @@
+{ "version": 1, "name": "tpl_sparkle", "profile": "../profile.json", "seed": 1234, "fixedTimeStep": true, "duration": 1.0,
+  "layers": [{ "name": "spark", "template": "sparkle" }] }

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "name": "synth_dots",
+  "seed": 7,
+  "fixedTimeStep": true,
+  "duration": 0.6,
+  "fps": 12,
+  "loop": false,
+  "canvas": {
+    "texels": [
+      16,
+      16
+    ],
+    "scale": 4
+  },
+  "layers": [
+    {
+      "name": "dots",
+      "material": "unlit",
+      "blend": "alpha",
+      "main": {
+        "startSize": 0.0625
+      }
+    }
+  ]
+}

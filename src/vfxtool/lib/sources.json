@@ -1,0 +1,56 @@
+{
+  "puff8": {
+    "file": "SmokeThickPuff.png",
+    "title": "Fire & Smoke Animations",
+    "author": "Reactorcore",
+    "url": "https://opengameart.org/content/fire-smoke-animations",
+    "license": "CC0 1.0",
+    "sha256": "91691b99bd8933d3e6cccea12ae258625ae7e77adcd8484d47f96b24d0e003aa",
+    "src_cell": 8,
+    "src_frames": 9,
+    "cell": 8,
+    "window": [
+      0,
+      0
+    ],
+    "blend": "alpha",
+    "tones": 1,
+    "note": "원본이 이미 8칸이라 흰 실루엣으로만 바꾼다"
+  },
+  "puff16": {
+    "file": "polar_puff_strip.png",
+    "title": "Particles Pack 2 — puff",
+    "author": "Polar_34",
+    "url": "https://polar-34.itch.io/particles-pack-2",
+    "license": "CC0 1.0",
+    "sha256": "ad7ade86865728bf98831e88d0302de7e1742fb12b22988098a0b9a122cea3fa",
+    "src_cell": 32,
+    "src_frames": 10,
+    "cell": 16,
+    "window": [
+      8,
+      7
+    ],
+    "blend": "alpha",
+    "tones": 1,
+    "note": "팩의 puff GIF 10장을 가로 띠 PNG(320×32)로 이은 것이 원본이다. 창 (8, 7) 에서 장별 잘림 2·1·0·0·4·0·0·0·0·2"
+  },
+  "burst16": {
+    "file": "explosion_sheet.png",
+    "title": "16x16 Explosion",
+    "author": "BitingChaos (Nicholas Caito)",
+    "url": "https://opengameart.org/node/156434",
+    "license": "CC0 1.0",
+    "sha256": "77285931f8ccdf17fbfd2b8e6815e67c894af12be7ec4f4ea81c67025382519f",
+    "src_cell": 16,
+    "src_frames": 5,
+    "cell": 16,
+    "window": [
+      0,
+      0
+    ],
+    "blend": "alpha",
+    "tones": 1,
+    "note": "원본 3~4단 명도를 흰 1단으로 바꾼다"
+  }
+}

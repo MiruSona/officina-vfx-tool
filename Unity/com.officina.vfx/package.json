@@ -1,0 +1,17 @@
+{
+  "name": "com.officina.vfx",
+  "version": "0.1.0",
+  "displayName": "Officina VFX",
+  "description": "레시피 JSON(resolved.json)을 Shuriken ParticleSystem 프리팹으로 조립하고 판정용 프레임 PNG 를 뽑는다. VFXTool(Python vfxtool)의 Unity 쪽 짝.",
+  "unity": "6000.3",
+  "unityRelease": "23f1",
+  "license": "MIT",
+  "author": {
+    "name": "MiruSona"
+  },
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "17.3.0",
+    "com.unity.modules.particlesystem": "1.0.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  }
+}

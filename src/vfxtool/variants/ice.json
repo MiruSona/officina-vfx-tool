@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "ice",
+  "title": "얼음",
+  "palette": ["#F2FBFF", "#A8E6FF", "#5CB8F2", "#2F6DC4", "#1C2E6B"],
+  "materials": { "lib:shard": "lib:cross" },
+  "ramp": ["p0", "p1", "p2", "p3"],
+  "params": { "color": "p2" }
+}

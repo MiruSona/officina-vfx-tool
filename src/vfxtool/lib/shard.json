@@ -1,0 +1,20 @@
+{
+  "name": "shard",
+  "cell": 5,
+  "tiles": [
+    1,
+    3
+  ],
+  "frames": 1,
+  "rows": 3,
+  "kind": "grain",
+  "variants": [
+    "l2",
+    "l3",
+    "blob4"
+  ],
+  "blend": "alpha",
+  "made": "draw",
+  "source": null,
+  "license": "MIT (VFXTool 생성)"
+}

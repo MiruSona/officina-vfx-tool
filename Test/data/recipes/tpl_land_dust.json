@@ -1,0 +1,2 @@
+{ "version": 1, "name": "tpl_land_dust", "profile": "../profile.json", "seed": 1234, "fixedTimeStep": true, "duration": 0.6,
+  "layers": [{ "name": "dust", "template": "land_dust", "params": { "width": 8 }, "override": { "puff_l": { "main": { "gravityModifier": 0.2 } } } }] }

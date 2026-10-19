@@ -1,0 +1,7 @@
+{
+  "ppu": 24,
+  "allow_rotation": false,
+  "seq_tolerance": {"run": 4},
+  "fx_extra": ["#ffffff", "#FFF0C0"],
+  "glow": true
+}

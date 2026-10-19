@@ -1,0 +1,20 @@
+{
+  "name": "dot",
+  "cell": 3,
+  "tiles": [
+    1,
+    3
+  ],
+  "frames": 1,
+  "rows": 3,
+  "kind": "grain",
+  "variants": [
+    "px1",
+    "px2",
+    "plus3"
+  ],
+  "blend": "alpha",
+  "made": "draw",
+  "source": null,
+  "license": "MIT (VFXTool 생성)"
+}

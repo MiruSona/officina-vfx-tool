@@ -1,0 +1,2 @@
+{ "version": 1, "name": "tpl_hit_sparks", "profile": "../profile.json", "seed": 1234, "fixedTimeStep": true, "duration": 0.6,
+  "layers": [{ "name": "hit", "template": "hit_sparks", "preset": "small", "params": { "color": "p1" } }] }
