@@ -1,0 +1,6 @@
+# 시험 golden·자료는 바이트로 견준다. Windows autocrlf 가 CRLF 로 바꾸면 시험이 깨진다.
+Test/** text eol=lf
+# Unity 패키지(.cs·.asmdef·.meta·셰이더)도 LF 로 고정한다.
+Unity/** text eol=lf
+# 그림은 바이너리다.
+*.png binary
