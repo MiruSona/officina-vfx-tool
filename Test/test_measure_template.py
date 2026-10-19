@@ -4,7 +4,7 @@ import json
 import shutil
 from pathlib import Path
 
-from vfxtool import measure, measure_template
+from vfxtool import measure, measure_rules, measure_template
 from vfxtool.frames import Frame
 
 DATA = Path(__file__).parent / "data" / "frames" / "round_1"
@@ -82,7 +82,7 @@ def _centroid_checks():
 def test_centroid_rules_skip_tail_frames_below_min_coverage():
     """꼬리 장(덮은 면적 0.5% 미만)만 치우치거나 올라가면 통과."""
     frames = [Frame(i=k + 1, t=0.1 * k, rgba=None) for k in range(4)]
-    tail = measure_template.MIN_JUDGED_COVERAGE - 0.3
+    tail = measure_rules.MIN_JUDGED_COVERAGE - 0.3
     metrics = [_metric(40, 0.0), _metric(30, 0.5, x=0.5), _metric(1, 9.0, x=7.5, cov=tail), _metric(0, 0.0)]
     assert measure_template.evaluate(_centroid_checks(), frames, metrics) == []
 
@@ -90,7 +90,7 @@ def test_centroid_rules_skip_tail_frames_below_min_coverage():
 def test_centroid_rules_warn_on_main_frames_and_count_dropped():
     """본장이 치우치거나 올라가면 warn, detail 에 뺀 장 수."""
     frames = [Frame(i=k + 1, t=0.1 * k, rgba=None) for k in range(3)]
-    tail = measure_template.MIN_JUDGED_COVERAGE - 0.3
+    tail = measure_rules.MIN_JUDGED_COVERAGE - 0.3
     metrics = [_metric(40, 0.0), _metric(30, 5.0, x=4.0), _metric(1, 0.0, x=-7.0, cov=tail)]
     issues = measure_template.evaluate(_centroid_checks(), frames, metrics)
     assert [(i["rule"], i["frame"]) for i in issues] == [("template.symmetric_x", 2), ("template.centroid_rise_max", 2)]
@@ -101,7 +101,7 @@ def test_centroid_rules_skip_relative_tail_frames():
     """최대 덮은 면적이 크면 그 × MIN_JUDGED_SHARE 미만 꼬리 장(절대 문턱은 넘는 1.56%)도 빠져 통과."""
     frames = [Frame(i=k + 1, t=0.1 * k, rgba=None) for k in range(4)]
     tail = 1.56
-    assert measure_template.MIN_JUDGED_COVERAGE < tail < measure_template.MIN_JUDGED_SHARE * 10.0
+    assert measure_rules.MIN_JUDGED_COVERAGE < tail < measure_rules.MIN_JUDGED_SHARE * 10.0
     metrics = [_metric(40, 0.0, cov=10.0), _metric(30, 0.5, x=0.5, cov=8.0), _metric(6, 9.0, x=3.1, cov=tail), _metric(0, 0.0)]
     assert measure_template.evaluate(_centroid_checks(), frames, metrics) == []
 
@@ -154,8 +154,6 @@ def test_centroid_rises_uses_last_judged_frame():
 
 def test_dropped_note_is_shared_and_two_decimals():
     """리뷰 5 · 6 : 뺀 장 문구는 measure_rules 한 곳에서 나오고, 문턱은 실제 값을 소수 둘째 자리로 적는다."""
-    from vfxtool import measure_rules
-
     assert measure_template.dropped_note is measure_rules.dropped_note
     assert measure_template.judged_frames is measure_rules.judged_frames
     note = measure_rules.dropped_note(1, 2.5075)

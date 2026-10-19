@@ -16,7 +16,7 @@ from vfxtool.variant_set import TEX_DIR
 WHITE = "#FFFFFF"
 
 
-def _fail(rule, detail):
+def fail(rule, detail):
     return issue(rule, "error", detail)
 
 
@@ -25,7 +25,7 @@ def pair_values(spec_item, size, tiles, params, table, failures):
     params[spec_item["size"]] = size
     problem = type_problem(table[spec_item["size"]], size)
     if problem is not None:
-        failures.append(_fail("variant.tier_range", f"params.{spec_item['size']} {size} — {problem}"))
+        failures.append(fail("variant.tier_range", f"params.{spec_item['size']} {size} — {problem}"))
     if "tiles" in spec_item:
         params[spec_item["tiles"]] = list(tiles)
 
@@ -34,12 +34,12 @@ def ramp_params(name, spec_item, left_meta, material, scale, params, override, c
     """ramp:<소재> — 파라미터를 판 tex/ 의 램프 PNG 로, color 짝을 흰색으로. 굽기 일감을 돌려준다(6-2)."""
     sources = lib_cut.load_sources()
     if material not in sources:
-        failures.append(_fail("variant.ramp_source", f"ramp:{material} — sources.json 에 없는 소재다"))
+        failures.append(fail("variant.ramp_source", f"ramp:{material} — sources.json 에 없는 소재다"))
         return []
     entry = lib_cut.entry_for(material, sources)
     tiles = [entry["src_frames"], 1]
     if (left_meta["kind"], left_meta["tiles"]) != ("flipbook", tiles):
-        failures.append(_fail("variant.material", f"ramp:{material} 의 {tiles} 플립북이 {left_meta['name']} {left_meta['tiles']} 와 다르다"))
+        failures.append(fail("variant.material", f"ramp:{material} 의 {tiles} 플립북이 {left_meta['name']} {left_meta['tiles']} 와 다르다"))
         return []
     params[name] = f"{TEX_DIR}/{lib_cut.ramp_file(material)}"
     pair_values(spec_item, entry["cell"] * scale, tiles, params, ctx["tdata"]["params"], failures)
@@ -72,12 +72,12 @@ def bake_ramp(material, plan, tex, ctx, palette):
 def _bake(material, ramp_refs, tex, ctx, palette):
     """램프 PNG 바이트, 아니면 실패 issue dict."""
     if ctx["lib_src"] is None:
-        return _fail("variant.ramp_source", f"ramp:{material} — --lib-src(원본 폴더)를 안 줬다")
+        return fail("variant.ramp_source", f"ramp:{material} — --lib-src(원본 폴더)를 안 줬다")
     hexes = []
     for ref in ramp_refs:
         index = colors.palette_index(ref)
         if index is None or index >= len(palette):
-            return _fail("variant.ramp_source", f"ramp:{material} — 램프 번호 {ref} 가 팔레트({len(palette)}색) 밖이다")
+            return fail("variant.ramp_source", f"ramp:{material} — 램프 번호 {ref} 가 팔레트({len(palette)}색) 밖이다")
         hexes.append(palette[index][:7])
     try:
         src_root = lib_src_root(ctx["lib_src"])
@@ -85,9 +85,9 @@ def _bake(material, ramp_refs, tex, ctx, palette):
         source = ensure_inside(src_root / entry["file"], src_root)
         _, problem, _, _ = lib_cut.cut_ramp(source, material, tex, hexes)
     except VfxError as exc:
-        return _fail("variant.ramp_source", f"ramp:{material} — {exc.message}")
+        return fail("variant.ramp_source", f"ramp:{material} — {exc.message}")
     if problem is not None:
-        return _fail("variant.ramp_source", f"ramp:{material} — {problem}")
+        return fail("variant.ramp_source", f"ramp:{material} — {problem}")
     return (tex / lib_cut.ramp_file(material)).read_bytes()
 
 

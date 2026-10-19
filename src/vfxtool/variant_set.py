@@ -4,14 +4,12 @@
 """
 
 import copy
-import os
 import re
-from contextlib import contextmanager
 from pathlib import Path
 
 from vfxtool import template
 from vfxtool.errors import VfxError
-from vfxtool.paths import read_json
+from vfxtool.paths import exclusive_lock, read_json
 from vfxtool.recipe import values
 from vfxtool.template_values import param_values
 from vfxtool.variant_dict import BASE, NAME_RE
@@ -30,6 +28,7 @@ LOCK_FILE = "set.lock"
 RECIPE_FILE = "recipe.json"
 PROFILE_FILE = "profile.json"
 TEX_DIR = "tex"
+STATES = ("expanded", "failed", "done")
 # 판 이름 = 묶음 name(24) _ 속성(16) _ 세기(16) _s3 → 61자. 40자 넘는 판은 variant.name 실패로 장부에 남는다.
 VARIANT_NAME_RE = re.compile(r"[a-z0-9_]{1,61}")
 # --force 때 옛 set.json source 와 같아야 하는 칸(안 적었을 때 값). 다르면 done 판이 옛 값으로 남는다.
@@ -44,19 +43,9 @@ class SetLocked(VfxError):
         self.lock_file = lock_file
 
 
-@contextmanager
 def locked(set_dir):
-    """loop_state.locked 와 같은 수법 — set.lock 을 O_EXCL 로 만들고 끝나면 지운다."""
-    lock_file = Path(set_dir) / LOCK_FILE
-    try:
-        handle = os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-    except FileExistsError:
-        raise SetLocked(lock_file) from None
-    os.close(handle)
-    try:
-        yield
-    finally:
-        lock_file.unlink(missing_ok=True)
+    """set.lock 을 쥔다(loop_state.locked 와 같은 paths.exclusive_lock)."""
+    return exclusive_lock(Path(set_dir) / LOCK_FILE, SetLocked)
 
 
 def read_ledger(set_dir):
@@ -77,6 +66,11 @@ def ledger_entries(ledger):
         name = entry.get("name") if isinstance(entry, dict) else None
         if not isinstance(name, str) or VARIANT_NAME_RE.fullmatch(name) is None:
             raise VfxError(f"{SET_FILE} 판 이름 {name!r} 는 [a-z0-9_] 1~61자여야 한다")
+        if entry.get("state") not in STATES:
+            raise VfxError(f"{SET_FILE} 판 {name} 의 state {entry.get('state')!r} 는 {list(STATES)} 중 하나여야 한다")
+        for key in ("issues", "notes"):
+            if not isinstance(entry.get(key), list):
+                raise VfxError(f"{SET_FILE} 판 {name} 의 {key} 는 목록이어야 한다")
     return entries
 
 

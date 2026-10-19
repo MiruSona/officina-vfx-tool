@@ -18,7 +18,7 @@ from vfxtool.recipe.profile_view import make_view
 from vfxtool.report import issue
 from vfxtool.template_values import param_values, type_problem
 from vfxtool.variant_dict import BASE, RAMP_PREFIX, load_all as load_dicts, read_small
-from vfxtool.variant_ramp import bake_ramp, pair_values, ramp_params
+from vfxtool.variant_ramp import bake_ramp, fail, pair_values, ramp_params
 from vfxtool.variant_set import PROFILE_FILE, RECIPE_FILE, SEED_STEP, SET_FILE, TEX_DIR, kept_entries, locked, read_set, require_force
 
 LEDGER_VERSION = 1
@@ -57,14 +57,24 @@ def expand_set(set_path, work, variant_dirs=(), template_dirs=(), lib_src=None, 
 def _write_set(raw, plans, kept, ctx):
     """모든 판을 먼저 계산한다(묶음 오류면 여기서 멈춰 아무것도 안 쓴다). 그 뒤 판 폴더 · set.json 을 쓴다."""
     drafts = {plan["name"]: _draft_or_error(plan, ctx) for plan in plans if plan["name"] not in kept}
+    out = ctx["out"]
+    ledger_path = ensure_inside(out / SET_FILE, out)
+    if not ledger_path.exists():
+        # 판 폴더를 쓰다 끊겨도 set.json 이 남아야 --force · run 이 이어 간다 — 먼저 모두 expanded 로 쓴다.
+        write_json(ledger_path, _ledger(raw, [_entry(plan, []) for plan in plans], ctx))
     entries = []
     for plan in plans:
         if plan["name"] in kept:
             entries.append(kept[plan["name"]])
             continue
         entries.append(_write_or_error(drafts[plan["name"]], ctx))
+    ledger = _ledger(raw, entries, ctx)
+    return write_json(ledger_path, ledger), ledger
+
+
+def _ledger(raw, entries, ctx):
     spec = ctx["spec"]
-    ledger = {
+    return {
         "version": LEDGER_VERSION,
         "name": spec["name"],
         "template": spec["template"],
@@ -75,8 +85,6 @@ def _write_set(raw, plans, kept, ctx):
         "source": raw,
         "variants": entries,
     }
-    out = ctx["out"]
-    return write_json(ensure_inside(out / SET_FILE, out), ledger), ledger
 
 
 def _read_profile(relative, set_dir, root):
@@ -146,7 +154,7 @@ def _error_entry(plan, exc):
     entry = _entry(plan, [])
     entry["state"] = "failed"
     entry["errors"] = 1
-    entry["issues"] = [_fail("variant.error", f"뜻밖의 오류로 이 판을 못 펼쳤다 — {type(exc).__name__}: {lines[0]}")]
+    entry["issues"] = [fail("variant.error", f"뜻밖의 오류로 이 판을 못 펼쳤다 — {type(exc).__name__}: {lines[0]}")]
     return entry
 
 
@@ -162,7 +170,7 @@ def _draft(plan, ctx):
     spec = ctx["spec"]
     failures = []
     if len(plan["name"]) > schema.LAYER_NAME_MAX:
-        failures.append(_fail("variant.name", f"판 이름 {plan['name']!r} 가 {schema.LAYER_NAME_MAX}자를 넘는다 — 묶음 name 을 짧게 준다"))
+        failures.append(fail("variant.name", f"판 이름 {plan['name']!r} 가 {schema.LAYER_NAME_MAX}자를 넘는다 — 묶음 name 을 짧게 준다"))
     attr_dict = None
     if plan["attr"] != BASE:
         attr_dict = ctx["dicts"][plan["attr"]]["data"]
@@ -194,14 +202,10 @@ def _write_one(draft, ctx):
     entry["warns"] = sum(1 for item in result.issues if item["severity"] == "warn")
     if errors:
         rules = sorted({item["rule"] for item in errors})
-        entry["issues"] = [_fail("variant.check", f"check error {len(errors)}건 : {', '.join(rules)}")] + result.issues
+        entry["issues"] = [fail("variant.check", f"check error {len(errors)}건 : {', '.join(rules)}")] + result.issues
         entry["state"] = "failed"
         entry["errors"] = len(errors)
     return entry
-
-
-def _fail(rule, detail):
-    return issue(rule, "error", detail)
 
 
 def profile_copy(raw, attr_dict):
@@ -235,7 +239,7 @@ def _variant_params(plan, ctx, attr_dict, palette, failures):
     for name, factor in tier["mul"].items():
         scaled = _scaled(merged[name], factor, table[name]["type"])
         if scaled is None:
-            failures.append(_fail("variant.tier_range", f"params.{name} {merged[name]} × {factor} 가 유한한 수가 아니다"))
+            failures.append(fail("variant.tier_range", f"params.{name} {merged[name]} × {factor} 가 유한한 수가 아니다"))
             continue
         params[name] = scaled
         _range_check(name, params[name], table[name], failures)
@@ -277,7 +281,7 @@ def _dict_params(attr_dict, table, failures):
             continue
         problem = type_problem(table[name], value)
         if problem is not None:
-            failures.append(_fail("variant.param", f"사전 {attr_dict['name']} params.{name} {value!r} — {problem}"))
+            failures.append(fail("variant.param", f"사전 {attr_dict['name']} params.{name} {value!r} — {problem}"))
             continue
         found[name] = copy.deepcopy(value)
     return found, notes
@@ -297,14 +301,14 @@ def _scaled(value, factor, kind):
 def _range_check(name, value, spec, failures):
     problem = type_problem(spec, value)
     if problem is not None:
-        failures.append(_fail("variant.tier_range", f"params.{name} {value} — {problem}"))
+        failures.append(fail("variant.tier_range", f"params.{name} {value} — {problem}"))
 
 
 def _substitute(name, spec_item, current, right, scale, params, override, ctx, failures):
     """소재 치환 한 칸(4-4). 램프면 굽기 일감 하나를 돌려준다."""
     table = ctx["tdata"]["params"]
     if not material_lib.is_lib(current):
-        failures.append(_fail("variant.material", f"params.{name} {current!r} 는 lib 소재가 아니라 치환을 못 맞춘다"))
+        failures.append(fail("variant.material", f"params.{name} {current!r} 는 lib 소재가 아니라 치환을 못 맞춘다"))
         return []
     left_meta = _meta(current, failures)
     if left_meta is None:
@@ -316,7 +320,7 @@ def _substitute(name, spec_item, current, right, scale, params, override, ctx, f
         return []
     if (meta["kind"], meta["tiles"]) != (left_meta["kind"], left_meta["tiles"]):
         detail = f"{current} → {right} : kind · tiles 가 다르다 ({left_meta['kind']} {left_meta['tiles']} ≠ {meta['kind']} {meta['tiles']})"
-        failures.append(_fail("variant.material", detail))
+        failures.append(fail("variant.material", detail))
         return []
     params[name] = right
     pair_values(spec_item, meta["cell"] * scale, meta["tiles"], params, table, failures)
@@ -327,7 +331,7 @@ def _meta(texture, failures):
     try:
         return material_lib.load(material_lib.lib_name(texture))
     except VfxError as exc:
-        failures.append(_fail("variant.material", f"{texture} : {exc.message}"))
+        failures.append(fail("variant.material", f"{texture} : {exc.message}"))
         return None
 
 
@@ -356,7 +360,7 @@ def _palette_short(recipe, view, template_dirs):
     top = max(_palette_refs(expanded["layers"]), default=-1)
     if top < len(view["palette"]):
         return []
-    return [_fail("variant.palette_short", f"레시피가 p{top} 를 쓰는데 속성 팔레트는 {len(view['palette'])}색이다")]
+    return [fail("variant.palette_short", f"레시피가 p{top} 를 쓰는데 속성 팔레트는 {len(view['palette'])}색이다")]
 
 
 def _palette_refs(node):

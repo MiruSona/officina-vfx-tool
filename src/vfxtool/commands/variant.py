@@ -7,10 +7,9 @@ from vfxtool.unity.guard import positive_float
 from vfxtool.unity.job import DEFAULT_SAVE_ROOT
 from vfxtool.unity.run import DEFAULT_TIMEOUT
 from vfxtool.variant_expand import expand_set
-from vfxtool.variant_set import SET_FILE, SetLocked
+from vfxtool.variant_set import SET_FILE, STATES, SetLocked
 
 NAME = "variant"
-STATES = ("expanded", "failed", "done")
 
 
 def add_parser(sub):

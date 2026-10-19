@@ -5,7 +5,7 @@ import json
 import pytest
 
 from conftest import write_set
-from vfxtool import report, variant_run
+from vfxtool import report, variant_run, variant_set
 from vfxtool.errors import VfxError
 from vfxtool.loop_pipeline import RoundOutcome
 from vfxtool.variant_expand import expand_set
@@ -92,7 +92,7 @@ def test_ledger_saved_after_each_variant(tmp_path, fake):
     variant_run.run_set(ledger_path.parent, project)
     assert pipeline.done_on_disk == [0, 1, 2]
     assert not list(ledger_path.parent.glob(".set.json.*.tmp"))
-    assert not (ledger_path.parent / variant_run.LOCK_FILE).exists()
+    assert not (ledger_path.parent / variant_set.LOCK_FILE).exists()
 
 
 def test_second_run_skips_done_and_only_filters(tmp_path, fake):
@@ -115,7 +115,7 @@ def test_unknown_only_name_is_refused(tmp_path, fake):
     with pytest.raises(VfxError, match="모르는 판"):
         variant_run.run_set(ledger_path.parent, project, only=["hit_ice_mid"])
     assert pipeline.calls == []
-    assert not (ledger_path.parent / variant_run.LOCK_FILE).exists()
+    assert not (ledger_path.parent / variant_set.LOCK_FILE).exists()
 
 
 def test_work_inside_unity_project_is_refused(tmp_path, fake):
@@ -131,8 +131,8 @@ def test_work_inside_unity_project_is_refused(tmp_path, fake):
 def test_lock_file_blocks_second_run(tmp_path, fake):
     ledger_path, project = _expand(tmp_path, attrs=["fire"], tiers=["mid"], seeds=1)
     pipeline = fake(ledger_path)
-    (ledger_path.parent / variant_run.LOCK_FILE).write_text("", encoding="utf-8")
-    with pytest.raises(variant_run.SetLocked):
+    (ledger_path.parent / variant_set.LOCK_FILE).write_text("", encoding="utf-8")
+    with pytest.raises(variant_set.SetLocked):
         variant_run.run_set(ledger_path.parent, project)
     assert pipeline.calls == []
 
@@ -176,3 +176,22 @@ def test_timing_sums_done_variants():
     assert variant_run.timing([{"state": "expanded", "seconds": None}]) is None
     light = dict(summary, startup_ratio=0.4)
     assert variant_run.timing_issues(light) == []
+
+
+def test_unexpected_error_fails_only_that_variant(tmp_path, fake, monkeypatch):
+    """반쯤 쓴 PNG 같은 VfxError 밖 오류도 그 판만 failed, 다음 판은 돈다."""
+    ledger_path, project = _expand(tmp_path, attrs=["fire"], tiers=["weak", "mid"], seeds=1)
+    pipeline = fake(ledger_path)
+
+    def flaky(folder, settings):
+        if folder.name == "hit_fire_mid":
+            raise OSError("반쯤 쓴 파일")
+        return pipeline(folder, settings)
+
+    monkeypatch.setattr(variant_run, "run_pipeline", flaky)
+    _, ledger, _ = variant_run.run_set(ledger_path.parent, project)
+    states = {e["name"]: e["state"] for e in ledger["variants"]}
+    assert states == {"hit_fire_mid": "failed", "hit_fire_weak": "done"}
+    failed = next(e for e in ledger["variants"] if e["name"] == "hit_fire_mid")
+    assert failed["issues"][0]["detail"] == "OSError: 반쯤 쓴 파일"
+    assert _ledger(ledger_path) == ledger

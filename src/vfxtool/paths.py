@@ -3,9 +3,24 @@
 import json
 import os
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 from vfxtool.errors import VfxError
+
+
+@contextmanager
+def exclusive_lock(lock_file, locked_error):
+    """lock_file 을 O_EXCL 로 만들어 한 판만 들어오게 한다. 이미 있으면 locked_error(lock_file). 끝나면 지운다."""
+    try:
+        handle = os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        raise locked_error(lock_file) from None
+    os.close(handle)
+    try:
+        yield
+    finally:
+        Path(lock_file).unlink(missing_ok=True)
 
 
 def ensure_inside(path, root):

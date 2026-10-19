@@ -21,3 +21,4 @@ UserSettings/
 *.local.md
 .claude/settings.local.json
 .claude/local/
+Private/

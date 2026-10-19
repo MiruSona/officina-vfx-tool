@@ -4,12 +4,10 @@
 error · warn 수는 render(unity) · measure(프레임) issue 만 센다. check issue 는 보고에만 싣는다.
 """
 
-import os
-from contextlib import contextmanager
 from pathlib import Path
 
 from vfxtool.errors import VfxError
-from vfxtool.paths import read_json, write_json
+from vfxtool.paths import exclusive_lock, read_json, write_json
 
 LEDGER = "loop.json"
 LOCK = "loop.lock"
@@ -57,19 +55,9 @@ class LoopLocked(VfxError):
         self.lock_file = lock_file
 
 
-@contextmanager
 def locked(loop_dir):
-    """run · next 한 판만 장부를 고치게 loop.lock 을 O_EXCL 로 만든다. 끝나면 지운다."""
-    lock_file = Path(loop_dir) / LOCK
-    try:
-        handle = os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-    except FileExistsError:
-        raise LoopLocked(lock_file) from None
-    os.close(handle)
-    try:
-        yield
-    finally:
-        lock_file.unlink(missing_ok=True)
+    """run · next 한 판만 장부를 고치게 loop.lock 을 쥔다."""
+    return exclusive_lock(Path(loop_dir) / LOCK, LoopLocked)
 
 
 def load(loop_dir):

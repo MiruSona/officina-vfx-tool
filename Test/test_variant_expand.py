@@ -233,3 +233,24 @@ def test_dict_param_bad_value_fails_variant(tmp_path):
     entry = ledger["variants"][0]
     assert entry["state"] == "failed"
     assert entry["issues"][0]["rule"] == "variant.param"
+
+
+def test_interrupted_expand_leaves_ledger_for_force(tmp_path, monkeypatch):
+    """판 폴더를 쓰다 끊겨도 set.json(모두 expanded)이 먼저 있어 --force 로 이어 펼친다."""
+    from vfxtool import variant_expand
+
+    path = write_set(tmp_path / "in", attrs=["fire"], tiers=["weak", "mid"], seeds=1)
+    real = variant_expand._write_or_error
+
+    def interrupted(draft, ctx):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(variant_expand, "_write_or_error", interrupted)
+    with pytest.raises(KeyboardInterrupt):
+        expand_set(path, tmp_path / "work")
+    ledger = json.loads((tmp_path / "work" / "hit" / "set.json").read_text(encoding="utf-8"))
+    assert {e["state"] for e in ledger["variants"]} == {"expanded"}
+    monkeypatch.setattr(variant_expand, "_write_or_error", real)
+    _, ledger = expand_set(path, tmp_path / "work", force=True)
+    assert len(ledger["variants"]) == 2
+    assert (tmp_path / "work" / "hit" / "hit_fire_mid" / "recipe.json").is_file()

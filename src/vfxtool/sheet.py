@@ -81,8 +81,11 @@ def header_text(info, counts):
     tail = "error - warn -"
     if counts is not None:
         tail = f"error {counts[0]} warn {counts[1]}"
-    text = f"{info.name} | round {info.round_no} | seed {info.seed} | fts {fts} | {tail}"
-    # 이름에 ASCII 밖 글자가 오면 기본 글꼴이 못 그린다 — ? 로 바꾼다.
+    return ascii_only(f"{info.name} | round {info.round_no} | seed {info.seed} | fts {fts} | {tail}")
+
+
+def ascii_only(text):
+    """기본 글꼴이 못 그리는 ASCII 밖 글자는 ? 로."""
     return text.encode("ascii", "replace").decode("ascii")
 
 

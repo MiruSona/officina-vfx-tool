@@ -15,8 +15,7 @@ from vfxtool.unity.job import DEFAULT_SAVE_ROOT, normalize_save_root
 from vfxtool.unity.lock import check_lock
 from vfxtool.unity.locate import locate_unity
 from vfxtool.unity.run import DEFAULT_TIMEOUT
-# 잠금(LOCK_FILE · SetLocked · locked)은 expand --force 도 쓰므로 variant_set 에 있다. 옛 이름으로도 부르게 다시 내보낸다.
-from vfxtool.variant_set import LOCK_FILE, PROFILE_FILE, RECIPE_FILE, SET_FILE, SetLocked, ledger_entries, locked, read_ledger  # noqa: F401
+from vfxtool.variant_set import PROFILE_FILE, RECIPE_FILE, SET_FILE, ledger_entries, locked, read_ledger
 
 STARTUP_HEAVY = 0.5   # Unity 밖 시간이 절반을 넘으면 「묶어 돌리기(2차)」가 값어치 있다(D1)
 
@@ -99,6 +98,9 @@ def run_one(set_dir, entry, settings_base):
         outcome = run_pipeline(folder, settings)
     except VfxError as exc:
         _mark_failed(entry, [], exc.message, time.perf_counter() - started)
+        return
+    except Exception as exc:  # 반쯤 쓴 PNG 같은 뜻밖의 오류도 이 판만 failed — 다음 판 · set.json 은 이어 간다
+        _mark_failed(entry, [], f"{type(exc).__name__}: {exc}", time.perf_counter() - started)
         return
     wall = time.perf_counter() - started
     entry["errors"] = sum(1 for item in outcome.ranked if item["severity"] == "error")

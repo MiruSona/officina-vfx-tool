@@ -65,11 +65,12 @@ def test_long_name_variant_does_not_block_run_and_sheet(tmp_path, monkeypatch):
 def test_ledger_name_limit_is_61():
     longest = "a" * 24 + "_" + "b" * 16 + "_" + "c" * 16 + "_s3"
     assert len(longest) == 61
-    assert ledger_entries({"variants": [{"name": longest}]})
+    full = {"state": "expanded", "issues": [], "notes": []}
+    assert ledger_entries({"variants": [dict(full, name=longest)]})
     with pytest.raises(VfxError, match="1~61"):
-        ledger_entries({"variants": [{"name": longest + "x"}]})
+        ledger_entries({"variants": [dict(full, name=longest + "x")]})
     with pytest.raises(VfxError, match="1~61"):
-        ledger_entries({"variants": [{"name": "../up"}]})
+        ledger_entries({"variants": [dict(full, name="../up")]})
 
 
 # ── 2. 펼치기 도중 오류 ──
@@ -203,11 +204,11 @@ def test_run_releases_lock_on_unexpected_error(tmp_path, monkeypatch):
     project.mkdir()
 
     def explode(folder, settings):
-        raise RuntimeError("Unity 가 이상하다")
+        raise KeyboardInterrupt  # Exception 은 그 판 failed 로 삼키므로 끊김으로 잠금 풀림을 본다
 
     monkeypatch.setattr(variant_run, "run_pipeline", explode)
     monkeypatch.setattr(variant_run, "preflight", lambda project, unity: None)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(KeyboardInterrupt):
         variant_run.run_set(ledger_path.parent, project)
     assert not (ledger_path.parent / LOCK_FILE).exists()
 

@@ -5,8 +5,7 @@
 
 from vfxtool import report
 # 판정 장 고르기는 frame.lopsided 와 같은 것을 쓴다 — 까닭은 measure_rules 의 MIN_JUDGED_* 주석.
-# MIN_JUDGED_* 는 예전 자리(measure_template)로 보던 시험 · 호출을 위해 다시 내보낸다.
-from vfxtool.measure_rules import MIN_JUDGED_COVERAGE, MIN_JUDGED_SHARE, dropped_note, judged_frames
+from vfxtool.measure_rules import dropped_note, judged_frames
 
 SEVERITY = "warn"
 

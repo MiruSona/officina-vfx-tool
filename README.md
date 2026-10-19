@@ -3,7 +3,7 @@
 **AI 가 짧은 레시피 JSON 만 쓰면, 코드가 Unity Shuriken 파티클 이펙트(프리팹)를 조립하고 투명 배경 프레임 PNG 를 뽑아 검수하는 명령줄 툴이다.**
 Python `vfxtool` 이 레시피를 검사 · 펼치고 프레임을 재며, C# UPM 패키지 `com.officina.vfx` 가 `-batchmode` 에서 조립 · 렌더한다.
 
-**상태 : 1차 구현 끝 (2026-10-15).** pytest 305 통과 · Unity EditMode 47/47 · 실측 U1 ~ U3 통과(`Docs/Research/2026-10-15-VFX툴구현실측.md`).
+**상태 : 1차 구현 끝 (2026-10-15).** pytest 572 통과(2 건너뜀) · Unity EditMode 47/47 · 실측 U1 ~ U3 통과(`Docs/Research/2026-10-15-VFX툴구현실측.md`).
 남은 것은 사람 몫 U4(템플릿 접촉판 보기) · U5(게임 저장소에 붙여 보기)다.
 
 ## 한 줄 흐름
@@ -12,6 +12,8 @@ Python `vfxtool` 이 레시피를 검사 · 펼치고 프레임을 재며, C# UP
 레시피(템플릿 + params) → check → render(Unity) → measure · sheet → AI 가 critic · patch → loop next … (최대 4바퀴) → loop best
 묶음 JSON(속성 × 세기 × 시드) → variant expand → variant run(판마다 Unity) → overview.png 격자에서 고름 → 고른 판 recipe.json 을 loop 로 다듬기
 ```
+
+variant run 은 뜻밖의 오류(VfxError 아닌 것)도 그 판만 `failed` 로 적고 계속 돈다. 다시 돌리려면 `expand --force`.
 
 ## 설치
 

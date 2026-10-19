@@ -145,3 +145,31 @@ def test_bad_variant_name_in_ledger_is_refused(tmp_path):
     out = _set(tmp_path, [_entry("../evil", "fire", "mid")], ["fire"], ["mid"])
     with pytest.raises(VfxError, match="판 이름"):
         vs.make_sheets(out)
+
+
+def test_unexpected_load_error_becomes_blank_with_warn(tmp_path, monkeypatch):
+    """load_variant 의 VfxError 밖 오류(KeyError 등)도 빈 칸 + warn 으로 — 접촉판은 끝까지 만든다."""
+    out = _set(tmp_path, [_entry("hit_fire_mid", "fire", "mid")], ["fire"], ["mid"])
+
+    def broken(out_dir, name):
+        raise KeyError("i")
+
+    monkeypatch.setattr(vs, "load_variant", broken)
+    made, issues = vs.make_sheets(out)
+    assert [i["rule"] for i in issues] == ["variant.sheet"]
+    assert "'i'" in issues[0]["detail"]
+    assert made[0][0].is_file()
+
+
+@pytest.mark.parametrize("field, value, word", [("state", None, "state"), ("state", "running", "state"),
+                                               ("issues", None, "issues"), ("notes", "x", "notes")])
+def test_bad_ledger_fields_are_refused(tmp_path, field, value, word):
+    """손으로 고친 장부의 state · issues · notes 가 틀리면 KeyError 대신 칸 이름을 적은 VfxError."""
+    entry = _entry("hit_fire_mid", "fire", "mid")
+    if value is None:
+        del entry[field]
+    else:
+        entry[field] = value
+    out = _set(tmp_path, [entry], ["fire"], ["mid"])
+    with pytest.raises(VfxError, match=word):
+        vs.make_sheets(out)

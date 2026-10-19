@@ -15,7 +15,7 @@ from vfxtool import measure_metrics as mm
 from vfxtool.errors import VfxError
 from vfxtool.paths import ensure_inside, read_json
 from vfxtool.report import issue
-from vfxtool.sheet import HEADER_H, LABEL_H, PAD, PER_GROUP, SHEET_BG, TEXT, MAGENTA, composite, enlarge
+from vfxtool.sheet import HEADER_H, LABEL_H, PAD, PER_GROUP, SHEET_BG, TEXT, MAGENTA, ascii_only, composite, enlarge
 from vfxtool.variant_set import ledger_entries, read_ledger
 
 OVERVIEW_FILE = "overview.png"
@@ -40,8 +40,9 @@ def make_sheets(set_dir):
             continue
         try:
             shots[entry["name"]] = load_variant(out, entry["name"])
-        except VfxError as exc:
-            issues.append(issue("variant.sheet", "warn", f"{entry['name']} 프레임을 못 읽어 빈 칸으로 둔다 — {exc.message}"))
+        except Exception as exc:  # 판 하나가 깨져도 접촉판 · run 보고는 끝까지 낸다
+            detail = getattr(exc, "message", str(exc))
+            issues.append(issue("variant.sheet", "warn", f"{entry['name']} 프레임을 못 읽어 빈 칸으로 둔다 — {detail}"))
     texels = _canvas(shots)
     k = frames_mod.cell_scale(texels)
     cell = (texels[0] * k, texels[1] * k)
@@ -138,13 +139,13 @@ def draw_overview(ledger, entries, shots, cell, k):
     sheet = Image.new("RGB", overview_size(len(rows), len(cols), cell, left), SHEET_BG)
     draw = ImageDraw.Draw(sheet)
     font = ImageFont.load_default()
-    draw.text((PAD, 2), _ascii(_overview_header(ledger, entries)), fill=TEXT, font=font)
+    draw.text((PAD, 2), ascii_only(_overview_header(ledger, entries)), fill=TEXT, font=font)
     for c, (tier, seed_k) in enumerate(cols):
-        draw.text((left + c * (cell[0] + PAD), HEADER_H), _ascii(f"{tier} s{seed_k}"), fill=TEXT, font=font)
+        draw.text((left + c * (cell[0] + PAD), HEADER_H), ascii_only(f"{tier} s{seed_k}"), fill=TEXT, font=font)
     by_place = {(entry.get("attr"), entry.get("tier"), entry.get("k", 0)): entry for entry in entries}
     for r, attr in enumerate(rows):
         y = HEADER_H + LABEL_H + r * (cell[1] + LABEL_H + PAD)
-        draw.text((PAD, y + cell[1] // 2 - 6), _ascii(str(attr)), fill=TEXT, font=font)
+        draw.text((PAD, y + cell[1] // 2 - 6), ascii_only(str(attr)), fill=TEXT, font=font)
         for c, (tier, seed_k) in enumerate(cols):
             x = left + c * (cell[0] + PAD)
             entry = by_place.get((attr, tier, seed_k))
@@ -177,7 +178,7 @@ def _blank_cell(sheet, draw, font, origin, cell, entry):
         draw.rectangle(box, fill=FAIL_BG)
         draw.line([(box[0], box[1]), (box[2], box[3])], fill=MAGENTA, width=2)
         draw.line([(box[0], box[3]), (box[2], box[1])], fill=MAGENTA, width=2)
-        draw.text((x + 2, y + cell[1] + 1), _ascii(f"FAIL {_fail_rule(entry)}"), fill=MAGENTA, font=font)
+        draw.text((x + 2, y + cell[1] + 1), ascii_only(f"FAIL {_fail_rule(entry)}"), fill=MAGENTA, font=font)
         return
     draw.rectangle(box, fill=PENDING_BG)
     draw.text((x + 2, y + cell[1] + 1), "--", fill=TEXT, font=font)
@@ -261,8 +262,3 @@ def _clear_old_strips(out):
 def _save(image, path):
     image.save(path, format="PNG")
     return path, image.size
-
-
-def _ascii(text):
-    """기본 글꼴이 못 그리는 글자는 ? 로(이름은 이미 ASCII — 안전장치)."""
-    return text.encode("ascii", "replace").decode("ascii")
