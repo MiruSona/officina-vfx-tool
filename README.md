@@ -10,7 +10,7 @@ Python `vfxtool` 이 레시피를 검사 · 펼치고 프레임을 재며, C# UP
 
 ```
 레시피(템플릿 + params) → check → render(Unity) → measure · sheet → AI 가 critic · patch → loop next … (최대 4바퀴) → loop best
-묶음 JSON(속성 × 세기 × 시드) → variant expand → variant run(판마다 Unity) → overview.png 격자에서 고름 → 고른 판 recipe.json 을 loop 로 다듬기
+묶음 JSON(속성 × 세기 × 시드) → variant expand → variant run(Unity 한 번에 묶어 굽기, `--each` 면 판마다) → overview.png 격자에서 고름 → 고른 판 recipe.json 을 loop 로 다듬기
 ```
 
 variant run 은 뜻밖의 오류(VfxError 아닌 것)도 그 판만 `failed` 로 적고 계속 돈다. 다시 돌리려면 `expand --force`.

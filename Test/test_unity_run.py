@@ -257,3 +257,54 @@ def test_result_issue_hint_filled_from_rule_hints():
         assert item["hint"], rule
     kept = command._result_issue({"rule": "build.texture_bad", "detail": "x", "hint": ["main"]}, hints)
     assert kept["hint"] == ["main"]
+
+
+# ── 묶어 굽기 (묶어굽기설계 2-1 · 2-5) ──
+
+def test_args_shape_jobs_list(tmp_path):
+    jobs_file = tmp_path / "jobs.json"
+    args = run.build_args(tmp_path / "proj", tmp_path / "unity.log", jobs_file=jobs_file)
+    assert args[args.index("-vfxJobs") + 1] == str(jobs_file)
+    assert "-vfxJob" not in args
+    assert args[args.index("-executeMethod") + 1] == run.ENTRY_METHOD
+
+
+def _batch_log(tmp_path, newline="\n"):
+    """C# 꼴 묶음 로그 — 판 a 는 RunJob 앞에서 실패(job= 줄 없음), 판 b 는 정상, 판 c 는 도중에 죽음."""
+    a, b, c = (tmp_path / name for name in ("a", "b c", "d"))
+    log = tmp_path / "unity.log"
+    log.write_bytes(newline.join([
+        "Unity 기동 줄 Exception 아님",
+        "[VFXTOOL] jobs n=3 list=x",
+        "FileNotFoundException: 판 a job 없음",
+        f"[VFXTOOL] item 1/3 status=error issues=1 frames=0 exit=2 result={a / 'result.json'}",
+        f"[VFXTOOL] job={b / 'job.json'} mode=render recipe=b layers=1",
+        f"[VFXTOOL] item 2/3 status=ok issues=0 frames=14 exit=0 result={b / 'result.json'}",
+        f"[VFXTOOL] job={c / 'job.json'} mode=render recipe=c layers=1",
+    ]).encode("utf-8") + newline.encode("utf-8"))
+    return log, a, b
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_job_spans_cut_log_per_job(tmp_path, newline):
+    log, a, b = _batch_log(tmp_path, newline)
+    spans = run.job_spans(log)
+    assert spans[run.path_key(a)] == (2, 4)
+    assert spans[run.path_key(b)] == (4, 6)
+    assert spans[run.TAIL] == (6, 7)   # item 줄 없이 끝난 판(죽음)
+
+
+def test_span_log_issues_only_read_own_job(tmp_path):
+    log, a, b = _batch_log(tmp_path)
+    spans = run.job_spans(log)
+    assert [i["detail"] for i in run.log_issues(log, spans[run.path_key(a)])] == ["FileNotFoundException: 판 a job 없음"]
+    assert run.log_issues(log, spans[run.path_key(b)]) == []
+    assert run.no_result_lines(log, spans[run.TAIL]) == [f"[VFXTOOL] job={tmp_path / 'd' / 'job.json'} mode=render recipe=c layers=1"]
+    assert len(run.log_issues(log)) == 2   # 토막 없이 부르면 jobs n= 앞 줄까지 다 읽는다(옛 꼴)
+
+
+def test_list_error_line(tmp_path):
+    log = tmp_path / "unity.log"
+    log.write_text("x\n[VFXTOOL] jobs error=VfxJobListException: 목록 틀림\n", encoding="utf-8")
+    assert run.list_error(log) == "VfxJobListException: 목록 틀림"
+    assert run.list_error(tmp_path / "none.log") is None

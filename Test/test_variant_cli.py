@@ -128,6 +128,8 @@ def test_run_with_fake_unity_then_sheet(tmp_path, capsys, monkeypatch):
         assert (set_dir / name / "measure.json").is_file()
         assert (set_dir / name / "sheet.png").is_file()
     assert abs(timing["startup_ratio"] - (1 - 0.4 / timing["wall_total"])) < 0.002
+    assert (timing["mode"], timing["retries"]) == ("batch", 0)
+    assert metrics["variants"][0]["seconds"]["wall"] is None
 
     code, built = _call(capsys, ["variant", "sheet", "--work", str(set_dir)])
     assert code == 0
@@ -144,6 +146,19 @@ def test_run_failure_exits_1_and_keeps_going(tmp_path, capsys, monkeypatch):
     assert [(i["rule"], i["variant"]) for i in built["issues"]] == [("variant.run", "hit_fire_mid"), ("variant.run", "hit_ice_mid")]
     assert built["metrics"]["sheets"] is None
     assert not (set_dir / "overview.png").exists()
+
+
+def test_run_each_runs_unity_per_variant(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr(lock, "list_unity_processes", lambda: [])
+    set_dir = _expanded(tmp_path, capsys, attrs=["fire", "ice"], tiers=["mid"], seeds=1)
+    code, built = _call(capsys, ["variant", "run", "--work", str(set_dir), "--project", str(_project(tmp_path)),
+                                 "--unity", _fake_unity(tmp_path), "--each", "--no-sheet"])
+    assert code == 0, built["issues"]
+    timing = built["metrics"]["timing"]
+    assert (timing["mode"], timing["retries"], timing["unity_wall"]) == ("each", 0, None)
+    assert built["metrics"]["variants"][0]["seconds"]["wall"] > 0
+    assert (set_dir / "hit_fire_mid" / "unity.log").is_file()
+    assert not (set_dir / "jobs.json").exists()
 
 
 def test_run_refuses_work_inside_project_and_lock(tmp_path, capsys):

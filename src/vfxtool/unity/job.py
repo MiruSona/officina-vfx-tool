@@ -1,10 +1,12 @@
 """Unity 에 줄 job.json 을 만든다. 프레임 시각은 여기서 세고 C# 은 따른다 (설계 5-4 · 6-2)."""
 
 import math
+import os
 from pathlib import Path, PurePosixPath
 
 from vfxtool.errors import VfxError
 from vfxtool.paths import write_json
+from vfxtool.variant_set import MAX_VARIANTS
 
 MODES = ("build", "render", "both")
 BACKGROUNDS = ("transparent", "black", "white")
@@ -126,4 +128,23 @@ def make_job(recipe: Path, mode: str, save_root: str, out_dir: Path,
 def write_job(path: Path, job: dict) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     write_json(path, job)
+    return path
+
+
+MAX_JOBS = MAX_VARIANTS   # 묶음 판 수 상한
+
+
+def write_job_list(path: Path, job_files) -> Path:
+    """묶어 굽기 목록 `{"jobs":[절대 경로…]}` 을 쓴다(묶어굽기설계 2-2). C# 과 같은 검사 — 틀리면 안 쓴다."""
+    names = [str(item) for item in job_files]
+    if not 1 <= len(names) <= MAX_JOBS:
+        raise VfxError(f"jobs.json 판 수는 1~{MAX_JOBS} 이어야 한다 — {len(names)}")
+    for name in names:
+        if not name or not Path(name).is_absolute():
+            raise VfxError(f"jobs.json 원소는 절대 경로여야 한다 — {name!r}")
+    # result.json 은 job.json 옆에 쓰이므로 같은 판 폴더(대소문자 무시)가 겹치면 서로 덮는다 — C# 도 거절한다.
+    if len({os.path.normcase(os.path.normpath(Path(name).parent)) for name in names}) != len(names):
+        raise VfxError("jobs.json 에 같은 판 폴더가 겹친다 — result.json 을 서로 덮는다")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_json(path, {"jobs": names})
     return path

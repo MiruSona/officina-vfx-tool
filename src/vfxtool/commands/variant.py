@@ -24,12 +24,14 @@ def add_parser(sub):
     expand.add_argument("--input-root", help="profile · 게임 텍스처가 있어도 되는 폴더 (기본 : 묶음 파일 폴더)")
     expand.add_argument("--force", action="store_true", help="이미 있는 묶음 폴더에서 done 이 아닌 판만 다시 쓴다")
 
-    run = actions.add_parser("run", help="expanded 판을 이름 순으로 하나씩 Unity 로 돌리고 끝에 sheet")
+    run = actions.add_parser("run", help="expanded 판을 Unity 한 번에 묶어 굽고(--each 면 판마다 따로) 끝에 sheet")
     run.add_argument("--work", required=True, help="묶음 폴더(set.json 이 있는 곳, Unity 프로젝트 밖)")
     run.add_argument("--project", required=True, help="Unity 프로젝트 폴더")
     run.add_argument("--only", action="append", default=[], help="이 판만 (여러 번 또는 쉼표로)")
     run.add_argument("--unity", help="Unity.exe 경로(또는 명령)")
-    run.add_argument("--timeout", type=positive_float, default=DEFAULT_TIMEOUT, help="Unity 한 판 상한(초)")
+    run.add_argument("--timeout", type=positive_float, default=None,
+                     help=f"Unity 프로세스 하나 상한(초). 없으면 묶음 60 + 판 수 × 20, --each 는 {DEFAULT_TIMEOUT}")
+    run.add_argument("--each", action="store_true", help="옛 동작 — 판마다 Unity 를 따로 띄운다(묶음 결과와 견줄 때)")
     run.add_argument("--save-root", default=DEFAULT_SAVE_ROOT, help="프리팹 저장 자리(Assets/ 안)")
     run.add_argument("--no-sheet", action="store_true", help="끝에 overview · strips 를 안 그린다")
 
@@ -58,7 +60,8 @@ def run(args):
 def _run_set(args):
     """판을 돌리고 끝에 sheet. 판 실패는 종료 1, 묶음 · 인자 · 환경 오류는 VfxError(종료 2)."""
     try:
-        ledger_path, ledger, extra = variant_run.run_set(args.work, args.project, args.only, args.unity, args.timeout, args.save_root)
+        ledger_path, ledger, extra = variant_run.run_set(args.work, args.project, args.only, args.unity, args.timeout,
+                                                         args.save_root, args.each)
     except SetLocked as exc:
         return _locked(exc)
     sheets = None
@@ -115,4 +118,4 @@ def set_metrics(ledger_path, ledger, next_step):
     if counts["expanded"]:
         following = next_step
     return {"set": ledger_path.as_posix(), "counts": counts, "variants": variants,
-            "timing": variant_run.timing(ledger["variants"]), "next": following}
+            "timing": variant_run.timing(ledger["variants"], ledger.get("run")), "next": following}

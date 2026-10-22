@@ -130,3 +130,26 @@ def test_write_job_fields(tmp_path):
     assert data["mode"] == "render"
     with pytest.raises(VfxError):
         jobs.make_job(recipe, "bake", "Assets", tmp_path, [], [])
+
+
+# ── 묶어 굽기 jobs.json (묶어굽기설계 2-2) ──
+
+def test_write_job_list_fields(tmp_path):
+    paths = [tmp_path / "a" / "job.json", tmp_path / "b" / "job.json"]
+    out = jobs.write_job_list(tmp_path / "jobs.json", paths)
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert list(data) == ["jobs"]
+    assert data["jobs"] == [str(p) for p in paths]
+
+
+@pytest.mark.parametrize("bad, match", [
+    (["rel/job.json"], "절대 경로"),
+    ([], "1~48"),
+    (["{0}/a/job.json", "{0}/A/other.json"], "겹친다"),
+    (["{0}/j%d.json" % i for i in range(49)], "1~48"),
+])
+def test_write_job_list_rejects(tmp_path, bad, match):
+    paths = [p.format(tmp_path) for p in bad]
+    with pytest.raises(VfxError, match=match):
+        jobs.write_job_list(tmp_path / "jobs.json", paths)
+    assert not (tmp_path / "jobs.json").exists()

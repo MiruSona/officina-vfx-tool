@@ -55,7 +55,7 @@ def test_long_name_variant_does_not_block_run_and_sheet(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(variant_run, "run_pipeline", _ok_pipeline(calls))
     monkeypatch.setattr(variant_run, "preflight", lambda project, unity: None)
-    _, ran, _ = variant_run.run_set(ledger_path.parent, project)
+    _, ran, _ = variant_run.run_set(ledger_path.parent, project, each=True)
     assert calls == [f"{LONG}_lightning_weak"]
     assert _by_name(ran)[long_name]["state"] == "failed"
     made, _ = variant_sheet.make_sheets(ledger_path.parent)
@@ -209,7 +209,7 @@ def test_run_releases_lock_on_unexpected_error(tmp_path, monkeypatch):
     monkeypatch.setattr(variant_run, "run_pipeline", explode)
     monkeypatch.setattr(variant_run, "preflight", lambda project, unity: None)
     with pytest.raises(KeyboardInterrupt):
-        variant_run.run_set(ledger_path.parent, project)
+        variant_run.run_set(ledger_path.parent, project, each=True)
     assert not (ledger_path.parent / LOCK_FILE).exists()
 
 

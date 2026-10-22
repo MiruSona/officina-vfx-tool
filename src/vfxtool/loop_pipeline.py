@@ -28,6 +28,18 @@ class RoundOutcome:
 
 def run_pipeline(folder, settings):
     """RoundOutcome. check fail · Unity error · 프레임 못 읽음은 바퀴를 못 쓸 실패(failed)다."""
+    checked_issues, resolved_path = prepare_round(folder, settings)
+    if resolved_path is None:
+        return RoundOutcome(checked_issues, checked_issues, True)
+    try:
+        rendered = unity_command.execute(render_args(folder, resolved_path, settings))
+    except VfxError as exc:
+        return unity_failed(checked_issues, exc)
+    return finish_round(folder, settings, checked_issues, rendered)
+
+
+def prepare_round(folder, settings):
+    """Unity 앞 토막 — check 하고 resolved.json 을 쓴다. (check issues, resolved 경로 또는 None=check 실패)."""
     recipe = read_json(folder / "recipe.json")
     base = Path(settings["source_dir"]) / "recipe.json"
     profile = None
@@ -36,13 +48,18 @@ def run_pipeline(folder, settings):
     checked = run_check(recipe, base, profile, settings["input_root"], settings["templates"])
     checked_issues = list(checked.issues)
     if checked.resolved is None:
-        return RoundOutcome(checked_issues, checked_issues, True)
-    resolved_path = write_json(folder / "resolved.json", checked.resolved)
-    try:
-        rendered = unity_command.execute(_render_args(folder, resolved_path, settings))
-    except VfxError as exc:
-        ranked = [report.issue("unity.error", "error", exc.message)]
-        return RoundOutcome(checked_issues + ranked, ranked, True)
+        return checked_issues, None
+    return checked_issues, write_json(folder / "resolved.json", checked.resolved)
+
+
+def unity_failed(checked_issues, exc):
+    """Unity 명령이 VfxError 로 끝났다(못 찾음 · 잠김 · 시간 넘김) — 바퀴 실패."""
+    ranked = [report.issue("unity.error", "error", exc.message)]
+    return RoundOutcome(checked_issues + ranked, ranked, True)
+
+
+def finish_round(folder, settings, checked_issues, rendered):
+    """Unity 뒤 토막 — render 보고를 판정하고 measure · sheet · gif."""
     ranked = list(rendered["issues"])
     if rendered["status"] == "error" or not rendered["metrics"].get("frames"):
         return RoundOutcome(checked_issues + ranked, ranked, True)
@@ -55,7 +72,7 @@ def run_pipeline(folder, settings):
     return RoundOutcome(checked_issues + ranked, ranked, False)
 
 
-def _render_args(folder, resolved_path, settings):
+def render_args(folder, resolved_path, settings):
     return argparse.Namespace(
         unity_mode="render", resolved=str(resolved_path), project=settings["project"],
         save_root=settings["save_root"], work=str(folder), unity=settings["unity"],

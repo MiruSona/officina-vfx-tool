@@ -67,6 +67,22 @@ def execute(args: argparse.Namespace) -> dict:
 
 
 def _execute(args: argparse.Namespace) -> dict:
+    prepared = prepare(args)
+    if "report" in prepared:
+        return prepared["report"]
+    try:
+        code = run_unity(prepared["unity"], build_args(prepared["project"], prepared["log_file"], prepared["job_file"]),
+                         args.timeout)
+    except VfxError as exc:
+        return unity_error(prepared, str(exc))
+    return finish(prepared, code)
+
+
+def prepare(args: argparse.Namespace) -> dict:
+    """Unity 앞 토막 — 검사 · Unity 찾기 · 잠금 · job 쓰기 · 옛 결과 지우기 · resolved 사본.
+
+    돌려주는 dict 를 finish 에 넘긴다. texture 경로가 틀리면 {"report": 보고} 하나만(Unity 를 안 띄운다).
+    """
     mode = args.unity_mode
     resolved_path = Path(args.resolved).resolve()
     if not resolved_path.is_file():
@@ -79,7 +95,7 @@ def _execute(args: argparse.Namespace) -> dict:
     work = work_path(args.work, resolved_path, project)
     path_issues = texture_issues(resolved, _input_root(args, resolved_path))
     if path_issues:
-        return _report(1, path_issues, {"mode": mode})
+        return {"report": _report(1, path_issues, {"mode": mode})}
 
     frames, backgrounds = [], ["transparent"]
     metrics = {"mode": mode}
@@ -101,17 +117,25 @@ def _execute(args: argparse.Namespace) -> dict:
     issues = []
     if lock_state == STALE:
         issues.append(_issue("unity.stale_lock", "남은 Temp/UnityLockfile 을 무시하고 진행했다", "info"))
+    return {"mode": mode, "unity": unity, "project": project, "work": work, "out_dir": out_dir,
+            "job_file": job_file, "log_file": log_file, "metrics": metrics, "issues": issues,
+            "resolved_loop": resolved.get("loop", False)}
 
-    try:
-        code = run_unity(unity, build_args(project, log_file, job_file), args.timeout)
-    except VfxError as exc:
-        issues = [_issue("unity.error", str(exc))] + issues + log_issues(log_file)
-        return _report(2, issues, metrics)
+
+def unity_error(prepared: dict, detail: str) -> dict:
+    """Unity 를 못 띄웠거나 시간을 넘겼다 — 종료 2 보고."""
+    issues = [_issue("unity.error", detail)] + prepared["issues"] + log_issues(prepared["log_file"])
+    return _report(2, issues, prepared["metrics"])
+
+
+def finish(prepared: dict, code: int, log_file: Path | None = None, span=None) -> dict:
+    """Unity 뒤 토막 — result.json 을 보고로. 묶어 굽기는 묶음 로그와 그 판 토막(span)을 준다."""
+    metrics = prepared["metrics"]
     metrics["exit_code"] = code
-    if mode == "render" and not resolved.get("loop", False):
+    if prepared["mode"] == "render" and not prepared["resolved_loop"]:
         metrics["t0_skipped"] = True
-
-    return _merge_result(code, _find_result(work, out_dir), issues, metrics, log_file)
+    return _merge_result(code, _find_result(prepared["work"], prepared["out_dir"]), prepared["issues"], metrics,
+                         log_file or prepared["log_file"], span)
 
 
 def _input_root(args: argparse.Namespace, resolved_path: Path) -> Path:
@@ -122,15 +146,15 @@ def _input_root(args: argparse.Namespace, resolved_path: Path) -> Path:
 
 
 def _merge_result(code: int, result_path: Path | None, issues: list, metrics: dict,
-                  log_file: Path) -> dict:
+                  log_file: Path, span=None) -> dict:
     """result.json 의 status 와 프로세스 종료 코드 중 더 나쁜 쪽을 따른다."""
     if result_path is None:
         detail = f"Unity 가 result.json 을 안 남겼다(종료 {code})"
-        lines = no_result_lines(log_file)
+        lines = no_result_lines(log_file, span)
         if lines:
             detail += " — " + " | ".join(lines)
         issues = [_issue("unity.no_result", detail)]
-        return _report(2, issues + log_issues(log_file), metrics)
+        return _report(2, issues + log_issues(log_file, span), metrics)
 
     result = read_json(result_path)
     status = result.get("status")
@@ -142,7 +166,7 @@ def _merge_result(code: int, result_path: Path | None, issues: list, metrics: di
     rule_hints = load_rule_hints()
     issues += [_result_issue(item, rule_hints) for item in result.get("issues", [])]
     if exit_code != 0:
-        issues += log_issues(log_file)
+        issues += log_issues(log_file, span)
 
     metrics.update({
         "result": str(result_path),
@@ -156,7 +180,14 @@ def _merge_result(code: int, result_path: Path | None, issues: list, metrics: di
     return _report(exit_code, issues, metrics)
 
 
-def _process_exit(code: int) -> int:
+def has_result(prepared: dict) -> bool:
+    """이번 Unity 가 이 판 result.json 을 남겼나(옛 결과는 prepare 가 지웠다)."""
+    return _find_result(prepared["work"], prepared["out_dir"]) is not None
+
+
+def _process_exit(code: int | None) -> int:
+    if code is None:  # 묶어 굽기 — 묶음 종료 코드로는 판을 못 가른다, result status 만 믿는다(A4)
+        return 0
     if code in (0, 1, 2):
         return code
     return 2
