@@ -27,7 +27,9 @@ def test_builtin_four():
         assert entry["source"] == "builtin"
         assert len(entry["data"]["palette"]) == 5
         assert entry["data"]["ramp"] == ["p0", "p1", "p2", "p3"]
-        assert not any(right.startswith("ramp:") for right in entry["data"]["materials"].values())
+        ramps = {left: right for left, right in entry["data"]["materials"].items() if right.startswith("ramp:")}
+        # 기본 사전의 램프는 lightning 의 만든 소재 bolt32 하나뿐 — 자른 소재 램프는 --lib-src 가 있어야 해 넣지 않는다.
+        assert ramps == ({"lib:bolt32": "ramp:bolt32"} if entry["data"]["name"] == "lightning" else {})
         assert entry["data"]["params"] == {"color": "p2"}
 
 

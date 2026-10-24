@@ -1,0 +1,2 @@
+{ "version": 1, "name": "tpl_lightning_strike", "profile": "../profile.json", "seed": 1234, "fixedTimeStep": true, "duration": 0.75,
+  "layers": [{ "name": "strike", "template": "lightning_strike" }] }

@@ -100,3 +100,53 @@ def test_baked_once_per_attr(tmp_path, fake_source, monkeypatch):
     pngs = sorted((tmp_path / "work" / "hit").glob("hit_fire_*/tex/burst16_ramp.png"))
     assert len(pngs) == 3
     assert len({png.read_bytes() for png in pngs}) == 1
+
+
+def test_drawn_material_ramp_without_lib_src(tmp_path):
+    """만든 소재(bolt32) × 내장 lightning — --lib-src 없이 lib PNG 밝기 단을 램프 번호대로 칠한다."""
+    path = write_set(tmp_path / "in", template="lightning_strike", name="strike", duration=0.75, params={},
+                     attrs=["lightning"], tiers=["mid"], seeds=1)
+    _, ledger = expand_set(path, tmp_path / "work", lib_src=None)
+    entry = ledger["variants"][0]
+    assert entry["state"] == "expanded", entry["issues"]
+    variant = tmp_path / "work" / "strike" / "strike_lightning_mid"
+    pixels = np.array(Image.open(variant / "tex" / "bolt32_ramp.png").convert("RGBA"))
+    assert pixels.shape == (32, 256, 4)
+    ramp = ["#FFFFFF", "#FFF3A0", "#FFD240", "#E8892A"]  # lightning p0~p3
+    grey = np.array(Image.open(lib_cut.LIB_DIR / "bolt32.png").convert("RGBA"))
+    opaque = grey[..., 3] > 0
+    assert np.array_equal(opaque, pixels[..., 3] > 0)
+    for value, hexa in zip((255, 191, 127, 63), ramp):
+        found = {"#%02X%02X%02X" % tuple(p[:3]) for p in pixels[opaque & (grey[..., 0] == value)]}
+        assert found == {hexa}, (value, found)
+    layer = json.loads((variant / "recipe.json").read_text(encoding="utf-8"))["layers"][0]
+    assert layer["params"]["bolt_tex"] == "tex/bolt32_ramp.png"
+    assert layer["params"]["color"] == "#FFFFFF"
+    assert layer["params"]["bolt_size"] == 32
+    assert layer["override"] == {"bolt": {"textureSheet": {"tiles": [8, 1]}}}
+
+
+def _strike_with(tmp_path, material):
+    """lightning_strike × 내 사전 zap — lib:bolt32 를 ramp:<material> 로 바꾼다."""
+    folder = tmp_path / "dicts"
+    folder.mkdir()
+    data = {"version": 1, "name": "zap", "palette": ["#FFFFFF", "#FFF3A0", "#FFD240", "#E8892A"],
+            "materials": {"lib:bolt32": f"ramp:{material}"}, "ramp": ["p0", "p1", "p2", "p3"]}
+    (folder / "zap.json").write_text(json.dumps(data), encoding="utf-8")
+    path = write_set(tmp_path / "in", template="lightning_strike", name="strike", duration=0.75, params={},
+                     attrs=["zap"], tiers=["mid"], seeds=1)
+    _, ledger = expand_set(path, tmp_path / "work", [folder], lib_src=None)
+    return ledger["variants"][0]
+
+
+def test_ramp_unknown_material_fails(tmp_path):
+    entry = _strike_with(tmp_path, "nope")
+    assert entry["state"] == "failed"
+    assert entry["issues"][0]["rule"] == "variant.ramp_source"
+
+
+def test_ramp_drawn_grain_fails(tmp_path):
+    """만든 소재라도 grain(dot)은 bolt32 플립북 자리에 못 들어간다."""
+    entry = _strike_with(tmp_path, "dot")
+    assert entry["state"] == "failed"
+    assert entry["issues"][0]["rule"] == "variant.material"

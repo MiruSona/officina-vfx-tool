@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "name": "tpl_lightning_strike",
+  "profile": "../profile.json",
+  "seed": 1234,
+  "fixedTimeStep": true,
+  "fixedDeltaTime": 0.02,
+  "duration": 0.75,
+  "fps": 12,
+  "loop": false,
+  "canvas": {
+    "texels": [
+      64,
+      64
+    ],
+    "scale": 4
+  },
+  "bloom": false,
+  "light": "none",
+  "ppu": 32,
+  "sortingLayer": "Default",
+  "snap": true,
+  "layers": [
+    {
+      "name": "strike.bolt",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "<LIB>/bolt32.png",
+      "sortOrder": 12,
+      "space": "local",
+      "offset": [
+        0.0,
+        0.0
+      ],
+      "main": {
+        "startLifetime": 0.666,
+        "startSpeed": 0.0,
+        "startSize": 1.0,
+        "startColor": "#FFFFFF",
+        "gravityModifier": 0,
+        "maxParticles": 1
+      },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [
+          {
+            "t": 0,
+            "n": 1,
+            "cycles": 1,
+            "interval": 0.01
+          }
+        ]
+      },
+      "shape": {
+        "type": "Circle",
+        "radius": 0.0,
+        "position": [
+          0.0,
+          0.46875
+        ]
+      },
+      "textureSheet": {
+        "tiles": [
+          8,
+          1
+        ],
+        "fps": 12,
+        "cycles": 1
+      }
+    },
+    {
+      "name": "strike.sparks",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "<LIB>/dot.png",
+      "sortOrder": 11,
+      "space": "local",
+      "offset": [
+        0.0,
+        0.0
+      ],
+      "main": {
+        "startLifetime": {
+          "random": [
+            0.24,
+            0.4
+          ]
+        },
+        "startSpeed": {
+          "random": [
+            0.625,
+            1.25
+          ]
+        },
+        "startSize": 0.09375,
+        "startColor": "#C04020",
+        "gravityModifier": 1,
+        "maxParticles": 16
+      },
+      "emission": {
+        "rateOverTime": 0,
+        "bursts": [
+          {
+            "t": 0.083,
+            "n": 4,
+            "cycles": 1,
+            "interval": 0.01
+          }
+        ]
+      },
+      "shape": {
+        "type": "Cone",
+        "radius": 0.0,
+        "angle": 30,
+        "position": [
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "textureSheet": {
+        "tiles": [
+          1,
+          3
+        ],
+        "row": "random"
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "name": "lightning_strike",
+  "title": "낙뢰",
+  "layers": [
+    {
+      "name": "bolt",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$bolt_tex",
+      "sortOrder": 12,
+      "space": "local",
+      "main": { "startLifetime": 0.666, "startSpeed": 0, "startSize": "$bolt_size", "startColor": "$color", "gravityModifier": 0, "maxParticles": 1 },
+      "emission": { "rateOverTime": 0, "bursts": [[0, 1]] },
+      "shape": { "type": "Circle", "radius": 0, "position": [0, 15] },
+      "textureSheet": { "fps": 12, "cycles": 1 }
+    },
+    {
+      "name": "sparks",
+      "when": "$sparks",
+      "material": "unlit",
+      "blend": "alpha",
+      "texture": "$spark_tex",
+      "sortOrder": 11,
+      "space": "local",
+      "main": {
+        "startLifetime": { "random": ["$life*0.6", "$life"] },
+        "startSpeed": { "random": ["$speed*0.5", "$speed"] },
+        "startSize": "$spark_size",
+        "startColor": "$spark_color",
+        "gravityModifier": "$gravity",
+        "maxParticles": 16
+      },
+      "emission": { "rateOverTime": 0, "bursts": [[0.083, "$count"]] },
+      "shape": { "type": "Cone", "angle": "$spread", "radius": 0, "rotation": [-90, 0, 0], "position": [0, 0] },
+      "textureSheet": { "row": "random" }
+    }
+  ],
+  "params": {
+    "color": { "type": "color", "default": "#FFFFFF", "desc": "번개 색. 변형 사전 램프와 함께 쓴다 — 램프 판(ramp:bolt32)에서는 #FFFFFF 로 덮인다. 사전 없이 쓰면 회색 단 × 색이라 frame.palette warn 이 난다" },
+    "bolt_tex": { "type": "file", "default": "lib:bolt32", "size": "bolt_size", "color": "color", "desc": "낙뢰 플립북 소재(밝기 4단, 8장). lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "bolt_size": { "type": "int", "default": 32, "min": 1, "max": 64, "desc": "bolt 입자 크기(텍셀). 소재 칸 32 의 정수 배. 64 는 캔버스를 넘는다" },
+    "sparks": { "type": "bool", "default": true, "desc": "바닥 불씨 층을 넣나" },
+    "count": { "type": "int", "default": 4, "min": 1, "max": 16, "desc": "불씨 수(피크 장 t 0.083 버스트 한 번)" },
+    "speed": { "type": "float", "default": 40, "min": 10, "max": 80, "desc": "불씨 가장 빠른 속도(텍셀/초). 가장 느린 것은 0.5 배" },
+    "life": { "type": "float", "default": 0.4, "min": 0.1, "max": 0.5, "desc": "불씨 가장 긴 수명(초). 가장 짧은 것은 0.6 배. 0.083 + 0.5 < 0.708(마지막 장)이라 끝 장이 빈다" },
+    "gravity": { "type": "float", "default": 1, "min": 0, "max": 3, "desc": "불씨 중력 배수" },
+    "spread": { "type": "float", "default": 30, "min": 0, "max": 60, "desc": "불씨가 퍼지는 반각(도)" },
+    "spark_color": { "type": "color", "default": "p2", "fallback": "color", "desc": "불씨 색. 팔레트에 없으면 color 를 쓴다" },
+    "spark_tex": { "type": "file", "default": "lib:dot", "size": "spark_size", "desc": "불씨 소재. lib: 이름 또는 레시피 폴더 기준 PNG" },
+    "spark_size": { "type": "int", "default": 3, "min": 1, "max": 64, "desc": "spark 입자 크기(텍셀). 소재 칸의 정수 배" }
+  },
+  "fixed": {
+    "bolt.material": "unlit", "bolt.blend": "alpha", "bolt.space": "local",
+    "sparks.material": "unlit", "sparks.blend": "alpha", "sparks.space": "local"
+  },
+  "tiers": {
+    "weak": { "mul": { "count": 0.5, "speed": 0.7 } },
+    "mid": { "mul": {} },
+    "strong": { "mul": { "count": 2, "speed": 1.3, "life": 1.2 } }
+  },
+  "check": [
+    { "rule": "burst_only", "layer": "bolt" },
+    { "rule": "burst_only", "layer": "sparks" },
+    { "rule": "max_duration", "args": { "max": 0.75 } },
+    { "rule": "last_frame_empty", "kind": "frame" }
+  ]
+}

@@ -9,7 +9,7 @@ from conftest import DATA, write_set
 from vfxtool.errors import VfxError
 from vfxtool.variant_expand import expand_set
 
-TEMPLATES = ("hit_sparks", "land_dust", "ambient_motes", "heal_rise", "sparkle")
+TEMPLATES = ("hit_sparks", "land_dust", "ambient_motes", "heal_rise", "sparkle", "lightning_strike")
 
 
 def _expand(tmp_path, variant_dirs=(), **fields):

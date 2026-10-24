@@ -189,7 +189,7 @@ def _run(*args):
 
 def test_cli_lib_list_show_build(tmp_path):
     code, report = _run("lib", "list")
-    assert code == 0 and len(report["metrics"]["lib"]) == 10
+    assert code == 0 and len(report["metrics"]["lib"]) == 11
     code, report = _run("lib", "show", "ring")
     assert code == 0 and report["metrics"]["meta"]["tiles"] == [4, 1]
     code, report = _run("lib", "build", "--only", "dot", "--out", str(tmp_path))

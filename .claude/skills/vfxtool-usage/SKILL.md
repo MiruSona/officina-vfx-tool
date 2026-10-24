@@ -20,7 +20,7 @@ AI 는 **짧은 레시피 JSON 과 patch 만** 쓴다. ParticleSystem 조립 · 
 
 ## 레시피 쓰는 요령
 
-1. **템플릿부터 고른다.** `vfxtool template list` → `template show <이름>`. 다섯 : `hit_sparks`(맞음 파편) · `land_dust`(착지 먼지) · `sparkle`(플립북 반짝임) · `ambient_motes`(분위기 입자) · `heal_rise`(회복 입자). 맞는 게 있으면 층에 `template` + `preset` + `params` 만 쓴다. 손으로 층을 짜는 건 맞는 템플릿이 없을 때만.
+1. **템플릿부터 고른다.** `vfxtool template list` → `template show <이름>`. 여섯 : `hit_sparks`(맞음 파편) · `land_dust`(착지 먼지) · `sparkle`(플립북 반짝임) · `ambient_motes`(분위기 입자) · `heal_rise`(회복 입자) · `lightning_strike`(세로 낙뢰, 변형 사전 lightning 램프와 함께). 맞는 게 있으면 층에 `template` + `preset` + `params` 만 쓴다. 손으로 층을 짜는 건 맞는 템플릿이 없을 때만.
 2. **값 단위** : 크기 · 거리 · 속도는 **텍셀**(속도는 텍셀/초), 시간은 초, 각도는 **도**. Unity 단위 · 라디안 바꾸기는 check 가 한다.
 3. **색은 `p<n>`**(프로필 팔레트 번호)로 쓴다. hex 는 팔레트 밖이면 warn, 반투명 알파 hex 는 `binary` 프로필에서 error.
 4. **색은 startColor 에, 그러데이션은 알파만.** Unity 는 startColor × colorOverLifetime 색을 곱한다. 그러데이션 색 키는 `[[0, "#FFFFFF"]]` 로 두고 `alpha` 키로 사라짐만 그린다. 둘 다 색이면 `recipe.color_multiply` warn.
@@ -29,9 +29,10 @@ AI 는 **짧은 레시피 JSON 과 patch 만** 쓴다. ParticleSystem 조립 · 
 7. 플립북 `textureSheet.startFrame` 은 칸 번호(칸 = floor(값)). 모든 칸에서 고르려면 `{"random": [0, 칸 수]}`.
 8. 레시피 `profile` · `texture` 가 레시피 폴더 밖이면 `--input-root <위 폴더>` 를 준다(안 주면 `recipe.paths` error).
 9. Unity 를 띄우기 전에 `vfxtool check` 로 거른다(1초). fail 이면 렌더하지 않는다.
-10. **입자 그림은 소재 묶음에서 고른다.** `vfxtool lib list` · `lib show <이름>` → 층에 `"texture": "lib:<이름>"`(dot · cross · star4 · disc · ring · shard · streak · puff8 · puff16 · burst16). tiles · fps 는 check 가 채운다. 변형 줄 소재는 `textureSheet.row`(정수 · `"random"`)로 한 줄만 쓴다.
+10. **입자 그림은 소재 묶음에서 고른다.** `vfxtool lib list` · `lib show <이름>` → 층에 `"texture": "lib:<이름>"`(dot · cross · star4 · disc · ring · shard · streak · bolt32 · puff8 · puff16 · burst16. bolt32 만 밝기 4단 — 램프 판에서 쓴다). tiles · fps 는 check 가 채운다. 변형 줄 소재는 `textureSheet.row`(정수 · `"random"`)로 한 줄만 쓴다.
 11. 소재 · 시트 층은 **startSize 상수 하나**(소재 칸의 정수 배). 크기 곡선 · random 크기는 `recipe.lib_size` error 다 — 크기 변화는 플립북 장으로 낸다.
-12. lib 소재는 흰 실루엣이라 명도 단이 없다. 플립북(burst16 등)이 평평한 원판으로 보이면 `lib cut --ramp p0,p1,… --profile … --out <레시피 폴더>` 로 팔레트 램프 PNG 를 만들고(가까운 휘도로 골라 순서 무관, 같으면 앞 것), 층은 그 PNG + **startColor `#FFFFFF`** 로 쓴다(명령안내 11절).
+12. lib 소재는 (bolt32 빼고) 흰 실루엣이라 명도 단이 없다. 플립북(burst16 등)이 평평한 원판으로 보이면 `lib cut --ramp p0,p1,… --profile … --out <레시피 폴더>` 로 팔레트 램프 PNG 를 만들고(가까운 휘도로 골라 순서 무관, 같으면 앞 것), 층은 그 PNG + **startColor `#FFFFFF`** 로 쓴다(명령안내 11절).
+    bolt32 는 회색 밝기 단을 가진 만든 소재다 — 변형 사전이 `ramp:bolt32` 로 단마다 램프 색을 칠한다(--lib-src 필요 없음).
 13. **같은 이펙트의 여러 판(불 · 얼음 · 독 · 번개 × 약 · 중 · 강 × 시드)은 변형 묶음으로 만든다.** `variant expand <묶음.json> --work …` → `variant run --work <묶음 폴더> --project …` → (run 이 부름) `variant sheet`. `variant run` 은 기본이 묶음(Unity 한 번에 다 굽기)이고 `--each` 면 판마다 따로 띄운다. AI 는 짧은 **묶음 JSON 하나만** 쓴다(`template` · `profile` · `attrs` · `tiers` · `seeds`, 판 수 48 이하). 모든 판에 깔 손 덧칠은 묶음 `params` 에 쓴다 — 판 폴더 레시피를 하나씩 고치지 않는다. **`overview.png` 를 Read 로 보고** 속성 색이 안 갈리면(둘 다 흰빛) 사전 `params` 로 색 파라미터를 p1 · p2 로 옮긴다(게임 쪽 `--variants` 사전). 고른 판의 `recipe.json` 만 `patch` · `loop` 로 다듬는다. 세기 범위 밖은 자르지 않고 `variant.tier_range` 실패 — 즉석 세기로 고친다(명령안내 13절).
 
 ## critic.json · patch.json

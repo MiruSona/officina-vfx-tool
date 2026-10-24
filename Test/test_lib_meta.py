@@ -1,4 +1,4 @@
-"""소재 묶음 메타 — 10장 모두 · tiles × cell = PNG 크기 · CC-BY 없음 · cut 소재는 sources.json 에 있음."""
+"""소재 묶음 메타 — 11장 모두 · tiles × cell = PNG 크기 · CC-BY 없음 · cut 소재는 sources.json 에 있음."""
 
 import json
 
@@ -8,10 +8,10 @@ from PIL import Image
 from vfxtool import lib_cut, material_lib
 from vfxtool.errors import VfxError
 
-ALL = ("burst16", "cross", "disc", "dot", "puff16", "puff8", "ring", "shard", "star4", "streak")
+ALL = ("bolt32", "burst16", "cross", "disc", "dot", "puff16", "puff8", "ring", "shard", "star4", "streak")
 
 
-def test_ten_materials():
+def test_eleven_materials():
     assert material_lib.names() == sorted(ALL)
 
 

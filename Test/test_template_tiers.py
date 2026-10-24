@@ -7,7 +7,7 @@ import pytest
 from vfxtool.errors import VfxError
 from vfxtool.template import BUILTIN_DIR, load_all
 
-TEMPLATES = ("hit_sparks", "land_dust", "ambient_motes", "heal_rise", "sparkle")
+TEMPLATES = ("hit_sparks", "land_dust", "ambient_motes", "heal_rise", "sparkle", "lightning_strike")
 
 
 def _data(name):

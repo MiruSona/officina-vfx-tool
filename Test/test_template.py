@@ -1,4 +1,4 @@
-"""템플릿 층 — 다섯 템플릿 golden · 값 순서 · fixed · when · 더한 폴더 · 템플릿 check."""
+"""템플릿 층 — 여섯 템플릿 golden · 값 순서 · fixed · when · 더한 폴더 · 템플릿 check."""
 
 import json
 
@@ -12,7 +12,7 @@ from vfxtool.recipe.check import run_check
 from vfxtool.recipe.profile_view import load_profile
 from vfxtool.template import expand, frame_checks, load_all
 
-TEMPLATES = ("hit_sparks", "land_dust", "sparkle", "ambient_motes", "heal_rise")
+TEMPLATES = ("hit_sparks", "land_dust", "sparkle", "ambient_motes", "heal_rise", "lightning_strike")
 RECIPES = DATA / "recipes"
 
 

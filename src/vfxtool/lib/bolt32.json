@@ -1,0 +1,16 @@
+{
+  "name": "bolt32",
+  "cell": 32,
+  "tiles": [
+    8,
+    1
+  ],
+  "frames": 8,
+  "rows": 1,
+  "kind": "flipbook",
+  "variants": [],
+  "blend": "alpha",
+  "made": "draw",
+  "source": null,
+  "license": "MIT (VFXTool 생성)"
+}
